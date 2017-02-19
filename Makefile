@@ -95,7 +95,7 @@ tag:
 
 ## Recipes
 
-.INTERMEDIATE: $(draft).xml $(draft).raw.txt
+.INTERMEDIATE: $(draft).raw.txt
 %.xml: %.md
 	$(kramdown-rfc2629) $< > $@
 
