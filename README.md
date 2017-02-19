@@ -52,27 +52,19 @@ Copyright Notice
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
 
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 1]
-
-Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
-
-
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
-   3.  Description . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   4.  Implementation Caveats  . . . . . . . . . . . . . . . . . . .   4
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
-   6.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .   5
-   7.  NAT Considerations  . . . . . . . . . . . . . . . . . . . . .   5
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
-   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   5
-   10. Normative References  . . . . . . . . . . . . . . . . . . . .   5
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   5
+   1.  Introduction
+   2.  Terminology
+   3.  Description
+   4.  Implementation Caveats
+   5.  Security Considerations
+   6.  Privacy Considerations
+   7.  NAT Considerations
+   8.  IANA Considerations
+   9.  Acknowledgements
+   10. Normative References
+   Authors' Addresses
 
 1.  Introduction
 
@@ -103,18 +95,6 @@ Table of Contents
    document are to be interpreted as described in [RFC2119]
 
    For a comprehensive treatment of DNS terms, please see [RFC7719].
-
-
-
-
-
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 2]
-
-Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
-
 
 3.  Description
 
@@ -164,14 +144,6 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
    days, which gives time to notice the problem and and for human
    intervation for fixing it,
 
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 3]
-
-Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
-
-
 4.  Implementation Caveats
 
    Note well that answers from authoritive servers that have a DNS
@@ -216,17 +188,6 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
    Additionally, bad actors have been known to use DNS caches as sort of
    a perpetual cloud database, keeping records alive even after their
    authorities have gone away.  This makes that easier.
-
-
-
-
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 4]
-
-Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
-
 
 6.  Privacy Considerations
 
@@ -274,16 +235,6 @@ Authors' Addresses
    Email: tale@akamai.com
 
 
-
-
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 5]
-
-Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
-
-
    Warren Kumari
    Google
    1600 Amphitheatre Parkway
@@ -292,48 +243,4 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
    Email: warren@kumari.net
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lawrence & Kumari        Expires August 22, 2017                [Page 6]
 ```

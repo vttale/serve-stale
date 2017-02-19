@@ -68,15 +68,18 @@ endif
 
 ## diff
 
-diff:
-	git diff $(draft).txt
+diff: README.md
+	git diff README.md
 
 
-commit: $(draft).txt
-	@echo "Making README.md and committing and pushing to github. Run 'make tag' to add and push a tag."
+README.md: $(draft).raw.txt
+	@echo Making $@
 	@echo '**Important:** Read CONTRIBUTING.md before submitting feedback or contributing' > README.md
 	@echo \`\`\` >> README.md
-	@cat $(draft).txt >> README.md
+	@cat $(draft).raw.txt >> README.md
+
+commit: $(draft).txt $(draft).html README.md
+	@echo "Committing and pushing to github. Run 'make tag' to add and push a tag."
 	@echo \`\`\` >> README.md
 	read -p "Commit message: " msg; \
 	git commit -a -m "$$msg";
@@ -92,7 +95,7 @@ tag:
 
 ## Recipes
 
-.INTERMEDIATE: $(draft).xml
+.INTERMEDIATE: $(draft).xml $(draft).raw.txt
 %.xml: %.md
 	$(kramdown-rfc2629) $< > $@
 
@@ -101,6 +104,9 @@ tag:
 
 %.txt: %.xml
 	$(xml2rfc) $< -o $@ --text
+
+%.raw.txt: %.xml
+	$(xml2rfc) $< -o $@ --raw
 
 %.html: %.xml
 	$(xml2rfc) $< -o $@ --html
