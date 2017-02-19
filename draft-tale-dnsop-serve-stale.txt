@@ -5,8 +5,8 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Intended status: Standards Track                               W. Kumari
-Expires: August 21, 2017                                          Google
-                                                       February 17, 2017
+Expires: August 22, 2017                                          Google
+                                                       February 18, 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -33,7 +33,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 21, 2017.
+   This Internet-Draft will expire on August 22, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Lawrence & Kumari        Expires August 21, 2017                [Page 1]
+Lawrence & Kumari        Expires August 22, 2017                [Page 1]
 
 Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
@@ -91,8 +91,8 @@ Table of Contents
    servers would return is typically unchanged.
 
    Several major recursive resolver operations currently use stale data
-   for answers in some way, including OpenDNS, Xerocole, and Google (I
-   think).
+   for answers in some way, including Akamai, OpenDNS, Xerocole, and
+   Google (I think).
 
 2.  Terminology
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lawrence & Kumari        Expires August 21, 2017                [Page 2]
+Lawrence & Kumari        Expires August 22, 2017                [Page 2]
 
 Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
@@ -126,8 +126,8 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
    o  A query resolution timer, which caps the total amount of time a
       recursive resolver spends processing the query.
 
-   o  A maximum retention timer, which caps the amount of time that
-      records will be kept past their expiration.
+   o  A maximum stale timer, which caps the amount of time that records
+      will be kept past their expiration.
 
    Recursive resolvers already have that second timer; the first and
    third timers are new concepts for this mechanism.
@@ -152,20 +152,20 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
    If so, it sends a response and the TTL fields of the expired records
    SHOULD be set to 1.
 
-   Orthogonal to the query resolution process, the maximum retention
-   timer is used for cache management.  It SHOULD be configurable, and
-   defines the length of time after a record expires that it SHOULD be
-   retained in the cache.  The suggested value is 7 days, which gives
-   time to notice the problem and and for human intervation for fixing
-   it,
+   Orthogonal to the query resolution process, the maximum stale timer
+   is used for cache management.  This timer is conceptually different
+   from the maximum cache TTL that exists in many resolvers, the latter
+   of which is a clamp on the value of TTLs as received from
+   authoritative servers.  The maximum stale timer SHOULD be
+   configurable, and defines the length of time after a record expires
+   that it SHOULD be retained in the cache.  The suggested value is 7
+   days, which gives time to notice the problem and and for human
+   intervation for fixing it,
 
 
 
 
-
-
-
-Lawrence & Kumari        Expires August 21, 2017                [Page 3]
+Lawrence & Kumari        Expires August 22, 2017                [Page 3]
 
 Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
@@ -221,7 +221,7 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
 
 
-Lawrence & Kumari        Expires August 21, 2017                [Page 4]
+Lawrence & Kumari        Expires August 22, 2017                [Page 4]
 
 Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
@@ -277,7 +277,7 @@ Authors' Addresses
 
 
 
-Lawrence & Kumari        Expires August 21, 2017                [Page 5]
+Lawrence & Kumari        Expires August 22, 2017                [Page 5]
 
 Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
@@ -333,4 +333,4 @@ Internet-DraftServing Stale Data to Improve DNS Resiliency February 2017
 
 
 
-Lawrence & Kumari        Expires August 21, 2017                [Page 6]
+Lawrence & Kumari        Expires August 22, 2017                [Page 6]
