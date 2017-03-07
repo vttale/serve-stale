@@ -7,8 +7,8 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Intended status: Standards Track                               W. Kumari
-Expires: August 26, 2017                                          Google
-                                                       February 22, 2017
+Expires: August 5, 2017                                           Google
+                                                           February 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -19,6 +19,14 @@ Abstract
    This draft defines a method for recursive resolvers to use stale DNS
    data to avoid outages when authoritative nameservers cannot be
    reached to refresh expired data.
+
+   [ Ed note: Text inside square brackets ([]) is additional background
+   information, answers to frequently asked questions, general musings,
+   etc.  They will be removed before publication.  This document is
+   being collaborated on in Github at: https://github.com/vttale/serve-
+   stale.  The most recent version of the document, open issues, etc
+   should all be available here.  The authors (gratefully) accept pull
+   requests ]
 
 Status of This Memo
 
@@ -35,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 26, 2017.
+   This Internet-Draft will expire on August 5, 2017.
 
 Copyright Notice
 
@@ -84,9 +92,18 @@ Table of Contents
    outages even when the underlying data those servers would return is
    typically unchanged.
 
+   There are a number of reasons why an authoritative server may become
+   unreachable, including Denial of Service (DoS) attacks, networks
+   issues, etc.  Many nameservers implment "pre-fetch", where they
+   refresh records in the cache before they expire and are evicted.
+   This means that the recursive server still has information in its
+   cache when it attempts to contact the authoritative server.  This
+   document suggests that, if the recursive server is unable to contact
+   the authoritative server, it simply extends the existing records TTL,
+   on the assumption that "stale bread is better than no bread".
+
    Several major recursive resolver operations currently use stale data
-   for answers in some way, including Akamai, OpenDNS, Xerocole, and
-   Google (I think).
+   for answers in some way, including Akamai, OpenDNS, and Xerocole.
 
 2.  Terminology
 
@@ -128,11 +145,11 @@ Table of Contents
    resolution timer.  This timer bounds the work done by the resolver,
    and is commonly 30 seconds.
 
-   If the answer has not been completely determined when the client
-   response timer has elapsed, the resolver SHOULD then check its cache
-   to see whether there is expired data that would satisfy the request.
-   If so, it sends a response and the TTL fields of the expired records
-   SHOULD be set to 1.
+   If the answer has not been completely determined by the time the
+   client response timer has elapsed, the resolver SHOULD then check its
+   cache to see whether there is expired data that would satisfy the
+   request.  If so, it sends a response and the TTL fields of the
+   expired records SHOULD be set to 1.
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
@@ -190,11 +207,13 @@ Table of Contents
 
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
-   returned outside their validity period.
+   returned outside their validity period.  This would only be an issue
+   if the authorative servers are unreachable (the only time the
+   techniques in this document are used).
 
-   Additionally, bad actors have been known to use DNS caches as a kind
-   of perpetual cloud database, keeping records alive even after their
-   authorities have gone away.  This makes that easier.
+   Additionally, bad actors have been known to use DNS caches to keep
+   records alive even after their authorities have gone away.  This
+   makes that easier.
 
 6.  Privacy Considerations
 
@@ -219,8 +238,8 @@ Table of Contents
               November 1987, <http://www.rfc-editor.org/info/rfc1035>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
+              Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/
+              RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
