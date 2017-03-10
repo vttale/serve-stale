@@ -1,5 +1,6 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
+abbrev: DNS Serve Stale
 docname: draft-tale-dnsop-serve-stale-00
 date: 2017-03
 
@@ -47,7 +48,7 @@ to refresh expired data.
 Text inside square brackets (\[\]) is additional background
 information, answers to frequently asked questions, general musings,
 etc.  They will be removed before publication.  This document is being
-collaborated on in Github at
+collaborated on in GitHub at
 \<https://github.com/vttale/serve-stale\>.  The most recent
 version of the document, open issues, etc should all be available
 here.  The authors gratefully accept pull requests.
@@ -167,7 +168,7 @@ mechanism is only intended to add robustness to failures, and to be
 enabled all the time.  If stale data were used immediately and then a
 cache refresh attempted after the client response has been sent, the
 resolver would frequently be sending data that it would have had no
-trouble refrefreshing.
+trouble refreshing.
 
 It is important to continue the resolution attempt after the stale
 response has been sent, until the query resolution timeout, because
@@ -216,7 +217,7 @@ distribution.
 The most obvious security issue is the increased likelihood of DNSSEC
 validation failures when using stale data because signatures could be
 returned outside their validity period.  This would only be an issue
-if the authorative servers are unreachable, the only time the
+if the authoritative servers are unreachable, the only time the
 techniques in this document are used, and thus does not introduce
 a new failure in place of what would have otherwise been success.
 

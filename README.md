@@ -7,8 +7,8 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Intended status: Standards Track                               W. Kumari
-Expires: September 10, 2017                                       Google
-                                                           March 9, 2017
+Expires: September 11, 2017                                       Google
+                                                          March 10, 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -25,7 +25,7 @@ Ed note
    Text inside square brackets ([]) is additional background
    information, answers to frequently asked questions, general musings,
    etc.  They will be removed before publication.  This document is
-   being collaborated on in Github at <https://github.com/vttale/serve-
+   being collaborated on in GitHub at <https://github.com/vttale/serve-
    stale>.  The most recent version of the document, open issues, etc
    should all be available here.  The authors gratefully accept pull
    requests.
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 10, 2017.
+   This Internet-Draft will expire on September 11, 2017.
 
 Copyright Notice
 
@@ -192,7 +192,7 @@ Table of Contents
    enabled all the time.  If stale data were used immediately and then a
    cache refresh attempted after the client response has been sent, the
    resolver would frequently be sending data that it would have had no
-   trouble refrefreshing.
+   trouble refreshing.
 
    It is important to continue the resolution attempt after the stale
    response has been sent, until the query resolution timeout, because
@@ -242,7 +242,7 @@ Table of Contents
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
    returned outside their validity period.  This would only be an issue
-   if the authorative servers are unreachable, the only time the
+   if the authoritative servers are unreachable, the only time the
    techniques in this document are used, and thus does not introduce a
    new failure in place of what would have otherwise been success.
 
