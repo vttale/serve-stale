@@ -1,8 +1,8 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-tale-dnsop-serve-stale-00
-date: 2017-03
+docname: draft-tale-dnsop-serve-stale-01
+date: 2017-06
 
 ipr: trust200902
 area: Internet

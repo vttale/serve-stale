@@ -6,11 +6,11 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                  Google
-Expires: September 2, 2017                                    March 2017
+Expires: December 29, 2017                                 June 27, 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-tale-dnsop-serve-stale-00
+                    draft-tale-dnsop-serve-stale-01
 
 Abstract
 
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 2, 2017.
+   This Internet-Draft will expire on December 29, 2017.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 1]
+Lawrence & Kumari       Expires December 29, 2017               [Page 1]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 2]
+Lawrence & Kumari       Expires December 29, 2017               [Page 2]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    server is unable to contact the authoritative server but still has
@@ -165,9 +165,9 @@ Internet-Draft               DNS Serve Stale                  March 2017
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 3]
+Lawrence & Kumari       Expires December 29, 2017               [Page 3]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    configuration parameter that defaults to 10 seconds and is capped at
@@ -221,9 +221,9 @@ Internet-Draft               DNS Serve Stale                  March 2017
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 4]
+Lawrence & Kumari       Expires December 29, 2017               [Page 4]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    draft, either dropping the idea here completely or blessing it based
@@ -277,9 +277,9 @@ Internet-Draft               DNS Serve Stale                  March 2017
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 5]
+Lawrence & Kumari       Expires December 29, 2017               [Page 5]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    transient failures and longer outages that would have resulted in
@@ -333,9 +333,9 @@ Internet-Draft               DNS Serve Stale                  March 2017
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 6]
+Lawrence & Kumari       Expires December 29, 2017               [Page 6]
 
-Internet-Draft               DNS Serve Stale                  March 2017
+Internet-Draft               DNS Serve Stale                   June 2017
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -389,4 +389,4 @@ Authors' Addresses
 
 
 
-Lawrence & Kumari       Expires September 2, 2017               [Page 7]
+Lawrence & Kumari       Expires December 29, 2017               [Page 7]
