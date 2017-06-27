@@ -7,8 +7,8 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Intended status: Standards Track                               W. Kumari
-Expires: September 11, 2017                                       Google
-                                                          March 10, 2017
+Expires: September 2, 2017                                        Google
+                                                              March 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 11, 2017.
+   This Internet-Draft will expire on September 2, 2017.
 
 Copyright Notice
 
@@ -156,10 +156,14 @@ Table of Contents
    client response timer has elapsed, the resolver SHOULD then check its
    cache to see whether there is expired data that would satisfy the
    request.  If so, it adds that data to the response message and SHOULD
-   set the TTL of each expired record in the message to 1 second.  [
-   This 1 second TTL is ripe for discussion. ] The response is then sent
-   to the client while the resolver continues its attempt to refresh the
-   data.
+   set the TTL of each expired record in the message to 1 second.  The
+   response is then sent to the client while the resolver continues its
+   attempt to refresh the data.  1 second was chosen because
+   historically 0 second TTLs have been problematic for some
+   implementations.  It not only sidesteps those potential problems with
+   no practical negative consequence, it would also rate limit further
+   queries from any client that is honoring the TTL, such as a
+   forwarding resolver.
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
