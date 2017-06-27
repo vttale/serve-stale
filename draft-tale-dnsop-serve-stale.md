@@ -163,7 +163,17 @@ refreshed the data at the resolver.  In particular, this means that
 this method is not meant to protect against operator error at the
 authoritative server that turns a name that is intended to be valid
 into one that is non-existent, because there is no way for a resolver
-to know intent.
+to know intent.  
+
+\[ Paul Vixie has suggested that it be made explicit that an auth
+NXDOMAIN cause all data, even stale data, below the NXDOMAIN to also
+be removed, a la
+https://datatracker.ietf.org/doc/draft-vixie-dnsext-resimprove/.
+Conceptually this certainly has its appeal but addressing it in this
+document when resimprove has not progressed has procedural problems.
+This paragraph will be removed in the next draft, either dropping the
+idea here completely or blessing it based on positive feedback to do
+so. \]
 
 Resolution is given a chance to succeed before stale data is used to
 adhere to the original intent of the design of the DNS.  This

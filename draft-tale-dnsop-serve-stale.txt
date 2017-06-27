@@ -212,12 +212,12 @@ Internet-Draft               DNS Serve Stale                  March 2017
    into one that is non-existent, because there is no way for a resolver
    to know intent.
 
-   Resolution is given a chance to succeed before stale data is used to
-   adhere to the original intent of the design of the DNS.  This
-   mechanism is only intended to add robustness to failures, and to be
-   enabled all the time.  If stale data were used immediately and then a
-   cache refresh attempted after the client response has been sent, the
-
+   [ Paul Vixie has suggested that it be made explicit that an auth
+   NXDOMAIN cause all data, even stale data, below the NXDOMAIN to also
+   be removed, a la https://datatracker.ietf.org/doc/draft-vixie-dnsext-
+   resimprove/.  Conceptually this certainly has its appeal but
+   addressing it in this document when resimprove has not progressed has
+   procedural problems.  This paragraph will be removed in the next
 
 
 
@@ -226,6 +226,14 @@ Lawrence & Kumari       Expires September 2, 2017               [Page 4]
 Internet-Draft               DNS Serve Stale                  March 2017
 
 
+   draft, either dropping the idea here completely or blessing it based
+   on positive feedback to do so. ]
+
+   Resolution is given a chance to succeed before stale data is used to
+   adhere to the original intent of the design of the DNS.  This
+   mechanism is only intended to add robustness to failures, and to be
+   enabled all the time.  If stale data were used immediately and then a
+   cache refresh attempted after the client response has been sent, the
    resolver would frequently be sending data that it would have had no
    trouble refreshing.
 
@@ -266,14 +274,6 @@ Internet-Draft               DNS Serve Stale                  March 2017
 
    The algorithm described in this draft was originally implemented as a
    patch to BIND 9.7.0.  It has been in production on Akamai's
-   production network since 2011, and effectively smoothed over
-   transient failures and longer outages that would have resulted in
-   major incidents.  The patch has been contributed to the Internet
-   Systems Consortium in anticipation that it will be incorporated to
-   their main BIND distribution.
-
-
-
 
 
 
@@ -281,6 +281,12 @@ Lawrence & Kumari       Expires September 2, 2017               [Page 5]
 
 Internet-Draft               DNS Serve Stale                  March 2017
 
+
+   production network since 2011, and effectively smoothed over
+   transient failures and longer outages that would have resulted in
+   major incidents.  The patch has been contributed to the Internet
+   Systems Consortium in anticipation that it will be incorporated to
+   their main BIND distribution.
 
 6.  Security Considerations
 
@@ -321,14 +327,8 @@ Internet-Draft               DNS Serve Stale                  March 2017
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
               November 1987, <http://www.rfc-editor.org/info/rfc1035>.
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <http://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
-              Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
-              <http://www.rfc-editor.org/info/rfc2181>.
+
 
 
 
@@ -337,6 +337,15 @@ Lawrence & Kumari       Expires September 2, 2017               [Page 6]
 
 Internet-Draft               DNS Serve Stale                  March 2017
 
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
+              Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
+              <http://www.rfc-editor.org/info/rfc2181>.
 
 11.2.  Informative References
 
@@ -362,15 +371,6 @@ Authors' Addresses
    USA
 
    Email: warren@kumari.net
-
-
-
-
-
-
-
-
-
 
 
 
