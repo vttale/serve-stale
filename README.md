@@ -218,16 +218,15 @@ Table of Contents
    Canonical Name (CNAME) records mingled in the expired cache with
    other records at the same owner name can cause surprising results.
    This was observed with an initial implementation in BIND, where a
-   hostname changed from having a CNAME record to an IPv4 Address (A)
-   record.  BIND does not evict CNAMEs in the cache when other types are
-   received, which in normal operations is not an issue.  However, after
-   both records expired and the authorities became unavailable, the
-   fallback to stale answers returned the older CNAME instead of the
-   newer A.
+   hostname changed from having an IPv4 Address (A) record.to a CNAME.
+   The version of BIND being used did not evict other types in the cache
+   when a CNAME was received, which in normal operations is not a
+   significant issue.  However, after both records expired and the
+   authorities became unavailable, the fallback to stale answers
+   returned the older A instead of the newer CNAME.
 
    [ This probably applies to other occluding types, so more thought
-   should be given to the overall issue.  It should probably also be
-   rewritten to not suggest that this only a quirk of BIND. ]
+   should be given to the overall issue. ]
 
    Keeping records around after their normal expiration will of course
    cause caches to grow larger than if records were removed at their
@@ -249,6 +248,10 @@ Table of Contents
    major incidents.  The patch has been contributed to the Internet
    Systems Consortium in anticipation that it will be incorporated to
    their main BIND distribution.
+
+   Unbound has a similar feature for serving stale answers, but it works
+   in a very different way by returning whatever cached answer it has
+   before trying to refresh expired records.
 
 6.  Security Considerations
 
