@@ -218,7 +218,7 @@ Table of Contents
    Canonical Name (CNAME) records mingled in the expired cache with
    other records at the same owner name can cause surprising results.
    This was observed with an initial implementation in BIND, where a
-   hostname changed from having an IPv4 Address (A) record.to a CNAME.
+   hostname changed from having an IPv4 Address (A) record to a CNAME.
    The version of BIND being used did not evict other types in the cache
    when a CNAME was received, which in normal operations is not a
    significant issue.  However, after both records expired and the
