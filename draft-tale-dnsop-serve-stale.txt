@@ -4,9 +4,9 @@
 
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
-Intended status: Standards Track                               W. Kumari
-Expires: September 2, 2017                                        Google
-                                                              March 2017
+Updates: 1034, 1035 (if approved)                              W. Kumari
+Intended status: Standards Track                                  Google
+Expires: September 2, 2017                                    March 2017
 
 
               Serving Stale Data to Improve DNS Resiliency

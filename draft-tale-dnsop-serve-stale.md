@@ -9,6 +9,7 @@ area: Internet
 wg: DNSOP Working Group
 kw: Internet-Draft
 cat: std
+updates: 1034, 1035
 
 coding: us-ascii
 pi:
