@@ -12,7 +12,7 @@ Expires: May 3, 2018                                    October 30, 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-tale-dnsop-serve-stale-02
+                    draft-ietf-dnsop-serve-stale-01
 
 Abstract
 
