@@ -14,7 +14,7 @@
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
 
-<rfc ipr="trust200902" docName="draft-ietf-dnsop-serve-stale-01" category="std" updates="1034, 1035">
+<rfc ipr="trust200902" docName="draft-ietf-dnsop-serve-stale-00" category="std" updates="1034, 1035">
 
   <front>
     <title abbrev="DNS Serve Stale">Serving Stale Data to Improve DNS Resiliency</title>
@@ -451,10 +451,10 @@ Davey Song has also been incorporated.</t>
   </back>
 
 <!-- ##markdown-source:
-H4sIAPiF91kAA7VbbXMbx5H+Pr9iwnyIdAFgkpItiXd1CU3SNmOJ8pF07Fyc
+H4sIAHSG91kAA7VbbXMbx5H+Pr9iwnyIdAFgkpItiXd1CU3SNmOJ8pF07Fyc
 Sg12B8CEi11kXwjBjv/7PU/3zO6CouTUVaIqSSSwO9vTL08/3dM7nU5NG9rC
 n9gbX9+HcmlvWld4e+5aZ9vKXq43dXWP369u7LVvQhF8me2Mm89rf38iH/NG
-r7eZvMpKt8Zqee0W7TT4djHNy6baTBteNW141fTwyOSuxVXHh0cvpkeHxoRN
+r7eZvMpKt8Zqee0W7TT4djHNy6baTBteNW141fTw0OSuxVXHh0cvpkeHxoRN
 fWLbumva48PDV4fHxtXendjLsvV16VuzXcqz3n5jv6vqO4r5ZV11G3O3HS6a
 nvOZJnPtiW3a3HQbPqQ5sUeHz55P+O+nxmRVjrtPbNdMXZOFYDbhxFg7xV4z
 +b/ZrWu/aPTnqm7lF+O6dlXVciX+WhtKrHs+O5vZ125bQyVePta9n7v7kNuz
@@ -598,7 +598,7 @@ CEIRijiLmVq7SQHaT4EKDNjXnXjfN3W4d9ljzjfWbq9K1jiky+MO2JawLIvo
 cZSOTtlHxzRNSjJ5J603mVVXJig1LdyYaSqKxh+9ZDAR6TTrD5H5/LjZ9Abq
 lm94CIK48s6+AUIE+3VRZXcT+6a7I1jeQIE1skY5sX8gq7+udjpV/ge+D2Xf
 ADlcJztIZLiGQvyWA2OoVYTJCd+9rua+bpFc11LOcIlzx5n7G+QNxWT2JGPi
-gh9u9DXe+BYsFzL/BwwpDWEhQAAA
+gh9u9DXe+BYsFzL/B5uCtiQhQAAA
 
 -->
 
