@@ -6,6 +6,7 @@
 <!ENTITY RFC1035 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.1035.xml">
 <!ENTITY RFC2181 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2181.xml">
 <!ENTITY RFC2119 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC6891 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.6891.xml">
 <!ENTITY RFC7719 SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7719.xml">
 ]>
 
@@ -86,44 +87,180 @@ here.  The authors gratefully accept pull requests.</t>
 <t>Traditionally the Time To Live (TTL) of a DNS resource record has been
 understood to represent the maximum number of seconds that a record
 can be used before it must be discarded, based on its description and
-usage in <xref target="RFC1035"/> and clarifications in <xref target="RFC2181"/>.
-Specifically, <xref target="RFC1035"/> Section 3.2.1 says that it "specifies the
-time interval that the resource record may be cached before the source
-of the information should again be consulted".</t>
+usage in <xref target="RFC1035"/> and clarifications in <xref target="RFC2181"/>.</t>
 
-<t>Notably, the original DNS specification does not say that data past
-its expiration cannot be used.  This document proposes a method for
-how recursive resolvers should handle stale DNS data to balance the
-competing needs of resiliency and freshness. It is predicated on the
-observation that authoritative server unavailability can cause outages
-even when the underlying data those servers would return is typically
-unchanged.</t>
+<t>This document proposes that the definition of the TTL be explicitly
+expanded to allow for expired data to be used in the exceptional
+circumstance that a recursive resolver is unable to refresh the
+information, It is predicated on the observation that authoritative
+server unavailability can cause outages even when the underlying data
+those servers would return is typically unchanged.</t>
 
-<t>There are a number of reasons why an authoritative server may become
-unreachable, including Denial of Service (DoS) attacks, network
-issues, and so on.  This document suggests that, if the recursive
-server is unable to contact the authoritative server but still has
-data for the query name, it essentially extends the TTL of the
-existing data on the assumption that "stale bread is better than no
-bread".</t>
-
-<t>Several major recursive resolver operations currently use stale data
-for answers in some way, including Akamai, OpenDNS, and Xerocole.</t>
+<t>A method is described for this use of stale data, balancing the
+competing needs of resiliency and freshness.  While this intended to
+be immediately useful to the installed base of DNS software, an
+<xref target="RFC6891"/> EDNS option is also proposed for enhanced signalling
+around the use of stale data by implementations that understand it.</t>
 
 </section>
 <section anchor="terminology" title="Terminology">
 
 <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in <xref target="RFC2119"/>.</t>
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+<xref target="RFC2119"/> when, and only when, they appear in all capitals, as shown
+here.</t>
 
 <t>For a comprehensive treatment of DNS terms, please see <xref target="RFC7719"/>.</t>
 
 </section>
-<section anchor="description" title="Description">
+<section anchor="background" title="Background">
 
-<t>Three notable timers drive considerations for the use of stale data,
-as follows:</t>
+<t>There are a number of reasons why an authoritative server may become
+unreachable, including Denial of Service (DoS) attacks, network
+issues, and so on.  If the recursive server is unable to contact the
+authoritative servers for a name but still has relevant data that has
+aged past its TTL, that information can still be useful for generating
+an answer under the metaphorical assumption that, "stale bread is
+better than no bread."</t>
+
+<t><xref target="RFC1035"/> Section 3.2.1 says that the TTL "specifies the time
+interval that the resource record may be cached before the source of
+the information should again be consulted", and Section 4.1.3 further
+says the TTL, "specifies the time interval (in seconds) that the
+resource record may be cached before it should be discarded."</t>
+
+<t>A natural English interpretation of these remarks would seem to be
+clear enough that records past their TTL expiration must not be used,
+However, <xref target="RFC1035"/> predates the more rigorous terminology of
+<xref target="RFC2119"/> which softened the interpretation of "may" and "should".</t>
+
+<t><xref target="RFC2181"/> aimed to provide "the precise definition of the Time to
+Live" but in Section 8 was mostly concerned with the numeric range of
+value and the possibility that very large values should be capped. (It
+also has the curious suggestion that a value in the range 2147483648
+to 4294967295 should be treated as zero.)  It closes that section by
+noting, "The TTL specifies a maximum time to live, not a mandatory
+time to live."  This is again not <xref target="RFC2119"/>-normative language, but
+does convey the natural language connotation that data becomes
+unusable past TTL expiry.</t>
+
+<t>Several major recursive resolver operations currently use stale data
+for answers in some way, including Akamai, OpenDNS, Xerocole, and
+Nominum.  Their collective operational experience is that it provides
+significant benefit with minimal downside.</t>
+
+</section>
+<section anchor="standards-action" title="Standards Action">
+
+<t>The definition of TTL in <xref target="RFC1035"/> Sections 3.2.1 and 4.1.3 is
+amended to read:</t>
+
+<t><list style="hanging">
+  <t hangText='TTL'>
+  a 32 bit unsigned integer number of seconds in the range 0 -
+2147483647 that specifies the time interval that the resource record
+MAY be cached before the source of the information MUST again be
+consulted.  Zero values are interpreted to mean that the RR can only
+be used for the transaction in progress, and should not be cached.
+Values with the high order bit set SHOULD be capped at no more than
+2147483647.  If the authority for the data is unavailable when
+attempting to refresh the data past the given interval, the record MAY
+be used as though it has a remaining TTL of 1 second.</t>
+</list></t>
+
+</section>
+<section anchor="edns-option" title="EDNS Option">
+
+<t>While the basic behaviour of this answer-of-last-resort can be
+achieved with changes only to resolvers, explicit signalling about the
+use of stale data can be done with an EDNS <xref target="RFC6891"/> option.</t>
+
+<t>[ This section will be fleshed out a bit more thoroughly if there is
+interest in pursuing the option. ]</t>
+
+<section anchor="option-format" title="Option Format">
+
+<t>The option is structured as follows:</t>
+
+<figure><artwork><![CDATA[
+              +0 (MSB)                        +1 (LSB)
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+0: |                         OPTION-CODE                       |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+2: |                        OPTION-LENGTH                      |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+4: |                     STALE-RRSET-INDEX 1                   |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+6: |                                                           |
+8: |                         TTL-EXPIRY 1                      |
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+   :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
+   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+]]></artwork></figure>
+
+<t><list style="hanging">
+  <t hangText='OPTION-CODE'>
+  2 octets per <xref target="RFC6891"/>.  For Serve-Stale the code is TBD by IANA.</t>
+  <t hangText='OPTION-LENGTH:'>
+  2 octets per <xref target="RFC6891"/>.  Contains the length of the payload
+following OPTION-LENGTH, in octets.</t>
+  <t hangText='STALE-RRSET-INDEX'>
+  Two octets as a signed integer, indicating the first RRSet in the
+message which is beyond its TTL, with RRSet counting starting at 1 and
+spanning message sections.</t>
+  <t hangText='TTL-EXPIRY'>
+  Four octets as an unsigned integer, representing the number of
+seconds that have passed since the TTL for the RRset expired.</t>
+</list></t>
+
+</section>
+<section anchor="option-usage" title="Option Usage">
+
+<t>Software making a DNS request can signal that it understands the
+Serve-Stale option by including the option with one STALE-RRSET-INDEX
+initialized to any negative value and TTY-EXPIRY initialized to 0.
+The index is set to a negative value to detect mere reflection of the
+option by responders that don't really understand it.</t>
+
+<t>If the request is made to a recursive resolver which used any stale
+RRsets in its reply, it then fills in the corresponding indices and
+staleness values.  If no records are stale, STALE-RRSET-INDEX and
+TTL-EXPIRY are set to 0.</t>
+
+<t>If the request is made to an authoritative nameserver, it can use the
+option in the reply to indicate how the resolver should treat the
+records in the reply if they are unable to be refreshed later.  A
+default for all RRsets in the message is established by setting the
+first STALE-RRSET-INDEX to 0, with optional additional
+STALE-RRSET-INDEX values overriding the default.  A TTL-EXPIRY value
+of 0 means to never serve the RRset as stale, while non-zero values
+represent the maximum amount of time it can be used before it MUST be
+evicted.  [ Does anyone really want to do this?  It adds more state
+into resolvers. ]</t>
+
+<t>No facility is made for a client of a resolver to signal that it
+doesn't want stale answers, because if a client has knowledge of
+Serve-Stale as an option, it also has enough knowledge to just ignore
+any records that come back stale.  [ There is admittedly the issue
+that the client might just want to wait out the whole attempted
+resolution, which there's currently no way to indicate.  The absolute
+value of STALE-RRSET-INDEX could be taken as a timer the requester is
+willing to wait for an answer, but that's kind of gross overloading it
+like that Shame to burn another field on that though, but on the other
+hand it would be nice if a client could always signal its impatience
+level &#8211; "I must have an answer within 900 milliseconds!" ]</t>
+
+</section>
+</section>
+<section anchor="example-method" title="Example Method">
+
+<t>There is conceivably more than one way a recursive resolver could
+responsibly implement this resiliency feature while still respecting
+the intent of the TTL as a signal for when data is to be refreshed.</t>
+
+<t>In this example method three notable timers drive considerations for
+the use of stale data, as follows:</t>
 
 <t><list style="symbols">
   <t>A client response timer, which is the maximum amount of time a
@@ -150,11 +287,7 @@ cache for expired records.</t>
 
 <t>If iterative lookups will be done, it SHOULD start the query
 resolution timer.  This timer bounds the work done by the resolver,
-and is commonly around 10 to 30 seconds. [ BIND 9 used to use a
-hard-coded constant of 30 seconds and has more recently added a
-configuration parameter that defaults to 10 seconds and is capped at
-30. A rigorous exploration of other implementations has not yet been
-done. ]</t>
+and is commonly around 10 to 30 seconds.</t>
 
 <t>If the answer has not been completely determined by the time the
 client response timer has elapsed, the resolver SHOULD then check its
@@ -176,7 +309,7 @@ from authoritative servers.  The maximum stale timer SHOULD be
 configurable, and defines the length of time after a record expires
 that it SHOULD be retained in the cache.  The suggested value is 7
 days, which gives time to notice the resolution problem and for human
-intervention for fixing it.</t>
+intervention to fix it.</t>
 
 <t>This same basic technique MAY be used to handle stale data associated
 with delegations.  If authoritative server addresses are not able to
@@ -193,16 +326,6 @@ this method is not meant to protect against operator error at the
 authoritative server that turns a name that is intended to be valid
 into one that is non-existent, because there is no way for a resolver
 to know intent.</t>
-
-<t>[ Paul Vixie has suggested that it be made explicit that an auth
-NXDOMAIN cause all data, even stale data, below the NXDOMAIN to also
-be removed, a la
-https://datatracker.ietf.org/doc/draft-vixie-dnsext-resimprove/.
-Conceptually this certainly has its appeal but addressing it in this
-document when resimprove has not progressed has procedural problems.
-This paragraph will be removed in the next draft, either dropping the
-idea here completely or blessing it based on positive feedback to do
-so. ]</t>
 
 <t>Resolution is given a chance to succeed before stale data is used to
 adhere to the original intent of the design of the DNS.  This
@@ -222,7 +345,7 @@ would never be refreshed.</t>
 
 <t>Canonical Name (CNAME) records mingled in the expired cache with other
 records at the same owner name can cause surprising results.  This was
-observed with an initial implementation in BIND, where a hostname
+observed with an initial implementation in BIND when a hostname
 changed from having an IPv4 Address (A) record to a CNAME.  The
 version of BIND being used did not evict other types in the cache when
 a CNAME was received, which in normal operations is not a significant
@@ -247,17 +370,18 @@ records.</t>
 <t>[RFC Editor: per RFC 6982 this section should be removed prior to
 publication.]</t>
 
-<t>The algorithm described in this draft was originally implemented as a
-patch to BIND 9.7.0.  It has been in production on Akamai's production
-network since 2011, and effectively smoothed over transient failures
-and longer outages that would have resulted in major incidents. The
-patch has been contributed to the Internet Systems Consortium in
-anticipation that it will be incorporated to their main BIND
-distribution.</t>
+<t>The algorithm described in the <xref target="example-method"/> section was
+originally implemented as a patch to BIND 9.7.0.  It has been in
+production on Akamai's production network since 2011, and effectively
+smoothed over transient failures and longer outages that would have
+resulted in major incidents. The patch was contributed to the Internet
+Systems Consortium and is now distributed with BIND 9.12.</t>
 
 <t>Unbound has a similar feature for serving stale answers, but it works
 in a very different way by returning whatever cached answer it has
-before trying to refresh expired records.</t>
+before trying to refresh expired records. This is unfortunately not
+faithful to the ideal that data past expiry should attempt to be
+refreshed before being served.</t>
 
 </section>
 <section anchor="security-considerations" title="Security Considerations">
@@ -270,8 +394,9 @@ techniques in this document are used, and thus does not introduce
 a new failure in place of what would have otherwise been success.</t>
 
 <t>Additionally, bad actors have been known to use DNS caches to keep
-records alive even after their authorities have gone away.  This makes
-that easier.</t>
+records alive even after their authorities have gone away.  This
+potentially makes that easier, although without introducing a new
+risk.</t>
 
 </section>
 <section anchor="privacy-considerations" title="Privacy Considerations">
@@ -293,7 +418,8 @@ removed during conversion into an RFC by the RFC editor.</t>
 <section anchor="acknowledgements" title="Acknowledgements">
 
 <t>The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy, and
-Jason Moreau for initial review.</t>
+Jason Moreau for initial review.  Feedback from Robert Edmonds and
+Davey Song has also been incorporated.</t>
 
 </section>
 
@@ -307,6 +433,7 @@ Jason Moreau for initial review.</t>
 &RFC1035;
 &RFC2181;
 &RFC2119;
+&RFC6891;
 
 
     </references>
@@ -323,110 +450,153 @@ Jason Moreau for initial review.</t>
   </back>
 
 <!-- ##markdown-source:
-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
-xpLnR0l2LxoFFYd3uH5Wc/CgmyPFw1RM0z1I4yEVSdEP0YR/lW/Wro8+wyNd
-X2Y4EK2N3REQVEYZCohjbUnJztd45i8iirNiYpQlOCIb94e8N1olLJXyCQ7p
-g+J1R9GTuVU+CGNSvozSPN4jwgFVByWNNS2tHMv82m2GPnL9DpozKaYayQM5
-pKEzBsH12fJ7lZRVrDNTcAN3CKmBIiBgEt2hI1+BwLOyj+SForrGVQqdR0mx
-0FgBI/eXogO4IRXllnVlNtyTaAobImHY7MuFmrzkYHDpUKOrfS6SSRlFX3Fr
-cEDWNQmBajI1W5nwhD2KnZLmiEzVtvdDN8GshOFfRWkCtfoydw7DtGJXEjHN
-iimrTWhIGFD0C25hMNqGAlyaGfTlDO/z0yx0l/rTn/Xv316/1q/G4JOMjNpC
-0p6wdyxl38HE5JluFddTZtdUiLGP4INK3mLUiA7ZR2d6FNBU4KR5NPCk9FFn
-hyvSaNN1XCOo56dLpDdEYwvzRQNWbVoRtrTYMmBbg5hJ14lTaRJjvrchdgB0
-EPb5F4mKUIGAabyQF0kJqKxAoKSdqHRTkgk3SciPZZEsZCsQDVuAeRhygCeQ
-E+MJONg6SwkknGwjiPpy/qCZjd6K8s1jf34tBmUqZkaiarQCJjjez4Qzlj8A
-MVpp6T/o42iWYlbMpAt12xdQzkmTb2a4UrRir6fG9WMFanRsruLDk7vAxJU9
-dAwFmWuwB3EIVKCFNtKzll66ULbzenwiFAuwQWHLLiOqYaRFgJiLYjYDiRvy
-kZMltqgcoCg2K4Wkq8ifL2ATyQ1wUJIuLNI+WKkdVNJdG6Lqy4v5SHhNiy+g
-LGkB+HwjCU/sexkOFDHPd6nSQtCyJdaVq/Hteugl8kx6NmnrvkXlbvYj70of
-h420DbaYyh62toAERqQMGxxsZ4dE5a/Zt4lhj9TEkeHphAjC2jSIa9RPknwK
-1GpZcJP+mRTwjJVSKV4eVg+Vatkg2rh067WlGo37mquT+GiiTrYocll0KaxJ
-7MfqGnOpMqKLZf5BqVaZusuaeiwwEnAzVUcVfXlE6fs8/DjinrG0qcPSRs/k
-cZeYZJsNYj+KljUNzMOClEFe5TZ8KpioLUZoJWWV+CHZk7qasWrCry/Rh+x9
-FjIb7MEnJmoJVFfMcmqMC7EZO1HEeDvAoyr2/IQvLuHXa/c5ardlmuh5cDNn
-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
-6a0lSib1P8R2sQjRKQAA
+H4sIAO279lkAA7Vba3fcxpH93r+iw3yItJkZk5SsB3fPJjRJ24wlykvSsb1x
+Tk4P0DODEAMgeHA0dvzf996qbgBDjuScPY7OkUTOAI3qety6VV2YTqemzdrc
+n9gbX99nxdLetC739ty1zralvVxXdXmP369u7LVvsjzzRbI1bj6v/f2JfMwb
+vd5m0jIp3BqrpbVbtFN+Nk2LpqymDa+aNvLJ4ZFJXYurjg+PXk4PXxiTVfWJ
+beuuaY8PD18fHhtXe3diL4vW14VvzWYpz3r3tf22rO8o5hd12VXmbjNcND3n
+M03i2hPbtKnpKj6kObFHh8+eT/jvp8YkZYq7T2zXTF2TZJmpshNj7RR7TeT/
+Zruu/aLRn8u6lV+M69pVWcuV+GttVmDd89nZzL5xmxoq8fKx7v3c3WepPdv9
+qqzx1NM7t3aZvfXJqijzcpn5Rr5s8BgPsY8+PbSf1aVLN24rXyRZuz2xZ249
+r7N0qSthC3jI21N7eHz0/Hh6dPjp8/B5V7Q1Lv/m5lQ+8HhWDrVC5X908uRZ
+Uq7N7ia+ndmvurWrs9EGvnU1BB9/LtJ/UZbL3O8K/OLw0J6uq1XWrrzDh/Zr
+V9/tSv+WcrmssH/O/Ga0g7NT+/r54fNnHxV+I6L88U5EmdEVzHQ6tW4OCVyC
+325XWaPeZlO/yArfWGfXHuZK7aKsbe2Trm4yeGjtmzK/93VDv+4abxv19Ksb
+eqN4u7svYbmya90S62xWUIJaPmtdyzWoH/FkrJK4oihbO+fKLln51GAFuAue
+s7L+fZXVPrVceaYy42L/t4v0b/wfcvv3LS2QpRDkHx383c6xozvfNvbJD3/5
+4a9PLTbm0jRrs7JwuZ3jyyWcvkhNVmBna8cvJtYVzSZsCo/+R+eLNt9a19zh
+6fit4VXNxC594Wsss+4aBEAzMb5NZtbervzWbrI8132sEespfsT63lbdPM8S
+eYxcSUWXSbfGEyjb3GMhBFSeu3lZI9SguQJbsl9k7Zfd3LrW/PBfq7atmpNP
+PlnCQbo5/e+T+5Z6/2QECD/8t0pi12XT0mJ4gqGO8WRbLix8q3/yxJYVzJI1
+DfY2sdiFbVZll6fW6SbcPRzHzeGoK1/7sLBasbFLyrnocmooSXzVYpO4TfTW
+tE2w1DpLU9xvfktsqcu0S6gD2Kx20RxYgFLdZmv8U9o3dI4nt7dvnlJeJ7hI
+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
 
 -->
 
