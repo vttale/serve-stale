@@ -94,7 +94,7 @@ Table of Contents
    This document proposes that the definition of the TTL be explicitly
    expanded to allow for expired data to be used in the exceptional
    circumstance that a recursive resolver is unable to refresh the
-   information, It is predicated on the observation that authoritative
+   information.  It is predicated on the observation that authoritative
    server unavailability can cause outages even when the underlying data
    those servers would return is typically unchanged.
 
@@ -137,7 +137,7 @@ Table of Contents
 
    [RFC2181] aimed to provide "the precise definition of the Time to
    Live" but in Section 8 was mostly concerned with the numeric range of
-   value and the possibility that very large values should be capped.
+   values and the possibility that very large values should be capped.
    (It also has the curious suggestion that a value in the range
    2147483648 to 4294967295 should be treated as zero.)  It closes that
    section by noting, "The TTL specifies a maximum time to live, not a
@@ -209,11 +209,11 @@ Table of Contents
 
 5.2.  Option Usage
 
-   Software making a DNS request can signal that it understands the
-   Serve-Stale option by including the option with one STALE-RRSET-INDEX
-   initialized to any negative value and TTY-EXPIRY initialized to 0.
-   The index is set to a negative value to detect mere reflection of the
-   option by responders that don't really understand it.
+   Software making a DNS request can signal that it understands Serve-
+   Stale by including the option with one STALE-RRSET-INDEX initialized
+   to any negative value and TTY-EXPIRY initialized to 0.  The index is
+   set to a negative value to detect mere reflection of the option by
+   responders that don't really understand it.
 
    If the request is made to a recursive resolver which used any stale
    RRsets in its reply, it then fills in the corresponding indices and
@@ -229,7 +229,8 @@ Table of Contents
    to never serve the RRset as stale, while non-zero values represent
    the maximum amount of time it can be used before it MUST be evicted.
    [ Does anyone really want to do this?  It adds more state into
-   resolvers. ]
+   resolvers.  Is the idea only for purists, or is there a practical
+   application? ]
 
    No facility is made for a client of a resolver to signal that it
    doesn't want stale answers, because if a client has knowledge of
