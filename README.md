@@ -8,11 +8,11 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                  Google
-Expires: December 3, 2017                                      June 2017
+Expires: May 3, 2018                                    October 30, 2017
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-tale-dnsop-serve-stale-01
+                    draft-tale-dnsop-serve-stale-02
 
 Abstract
 
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 3, 2017.
+   This Internet-Draft will expire on May 3, 2018.
 
 Copyright Notice
 
