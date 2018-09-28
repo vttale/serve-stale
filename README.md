@@ -7,12 +7,13 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                       Akamai Technologies
 Updates: 1034, 1035 (if approved)                              W. Kumari
-Intended status: Standards Track                                  Google
-Expires: May 3, 2018                                    October 30, 2017
+Intended status: Standards Track                                 P. Sood
+Expires: April 1, 2019                                            Google
+                                                      September 28, 2018
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-00
+                    draft-ietf-dnsop-serve-stale-01
 
 Abstract
 
@@ -38,23 +39,23 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 3, 2018.
+   This Internet-Draft will expire on April 1, 2019.
 
 Copyright Notice
 
-   Copyright (c) 2017 IETF Trust and the persons identified as the
+   Copyright (c) 2018 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -235,7 +236,7 @@ Table of Contents
    No facility is made for a client of a resolver to signal that it
    doesn't want stale answers, because if a client has knowledge of
    Serve-Stale as an option, it also has enough knowledge to just ignore
-   any records that come back stale.  [ There is admittedly the issue
+   any records that come back stale. [ There is admittedly the issue
    that the client might just want to wait out the whole attempted
    resolution, which there's currently no way to indicate.  The absolute
    value of STALE-RRSET-INDEX could be taken as a timer the requester is
@@ -286,12 +287,11 @@ Table of Contents
    request.  If so, it adds that data to the response message and SHOULD
    set the TTL of each expired record in the message to 1 second.  The
    response is then sent to the client while the resolver continues its
-   attempt to refresh the data.  1 second was chosen because
-   historically 0 second TTLs have been problematic for some
-   implementations.  It not only sidesteps those potential problems with
-   no practical negative consequence, it would also rate limit further
-   queries from any client that is honoring the TTL, such as a
-   forwarding resolver.
+   attempt to refresh the data. 1 second was chosen because historically
+   0 second TTLs have been problematic for some implementations.  It not
+   only sidesteps those potential problems with no practical negative
+   consequence, it would also rate limit further queries from any client
+   that is honoring the TTL, such as a forwarding resolver.
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
@@ -416,8 +416,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -425,8 +425,8 @@ Table of Contents
 
    [RFC6891]  Damas, J., Graff, M., and P. Vixie, "Extension Mechanisms
               for DNS (EDNS(0))", STD 75, RFC 6891,
-              DOI 10.17487/RFC6891, April 2013, <https://www.rfc-
-              editor.org/info/rfc6891>.
+              DOI 10.17487/RFC6891, April 2013,
+              <https://www.rfc-editor.org/info/rfc6891>.
 
 14.2.  Informative References
 
@@ -452,5 +452,11 @@ Authors' Addresses
    USA
 
    Email: warren@kumari.net
+
+
+   Puneet Sood
+   Google
+
+   Email: puneets@google.com
 
 ```
