@@ -66,23 +66,24 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-   2.  Terminology
-   3.  Background
-   4.  Standards Action
-   5.  EDNS Option
-     5.1.  Option Format
-     5.2.  Option Usage
-   6.  Example Method
-   7.  Implementation Caveats
-   8.  Implementation Status
-   9.  Security Considerations
-   10. Privacy Considerations
-   11. NAT Considerations
-   12. IANA Considerations
-   13. Acknowledgements
-   14. References
-     14.1.  Normative References
-     14.2.  Informative References
+   2.  Notes to readers
+   3.  Terminology
+   4.  Background
+   5.  Standards Action
+   6.  EDNS Option
+     6.1.  Option Format
+   7.  Example Method
+   8.  Implementation Caveats
+   9.  Implementation Status
+   10. new section
+   11. Security Considerations
+   12. Privacy Considerations
+   13. NAT Considerations
+   14. IANA Considerations
+   15. Acknowledgements
+   16. References
+     16.1.  Normative References
+     16.2.  Informative References
    Authors' Addresses
 
 1.  Introduction
@@ -96,16 +97,43 @@ Table of Contents
    expanded to allow for expired data to be used in the exceptional
    circumstance that a recursive resolver is unable to refresh the
    information.  It is predicated on the observation that authoritative
-   server unavailability can cause outages even when the underlying data
+   server unavailability causes outages even when the underlying data
    those servers would return is typically unchanged.
 
    A method is described for this use of stale data, balancing the
-   competing needs of resiliency and freshness.  While this intended to
-   be immediately useful to the installed base of DNS software, an
-   [RFC6891] EDNS option is also proposed for enhanced signalling around
-   the use of stale data by implementations that understand it.
+   competing needs of resiliency and freshness.  While this is intended
+   to be immediately useful to the installed base of DNS software, an
+   [RFC6891] EDNS option is also proposed in this document for enhanced
+   signalling around the use of stale data by implementations that
+   understand it.
 
-2.  Terminology
+   Note that it is highly desirable to couple this with a
+
+2.  Notes to readers
+
+   [ RFC Editor, please remove this section before publication!
+   Readers: This is conversational text to describe what we've done, and
+   will be removed, please don't bother sending editorial nits :-) ]
+
+   Due to circumstances, the authors of this document got sidetracked,
+   and we lost focus.  We are now reviving it, and are trying to address
+   / incorporate comments.  There has also been more deployment and
+   implementation recently, and so this document is now more describing
+   what is known to work instead of simply proposing a concept. ]
+
+   Open questions / notes:
+
+   o  As we know that a number of implementations are doing something
+      like serve-stale without any signalling, we are proposing removing
+      the signalling, other than a "please do not do serve-stale EDNS"
+      option for debugging.
+
+   o  The TTL value to set in stale answers returned by recursive
+      resolvers
+
+   o
+
+3.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -115,7 +143,7 @@ Table of Contents
 
    For a comprehensive treatment of DNS terms, please see [RFC7719].
 
-3.  Background
+4.  Background
 
    There are a number of reasons why an authoritative server may become
    unreachable, including Denial of Service (DoS) attacks, network
@@ -149,14 +177,20 @@ Table of Contents
    Several major recursive resolver operations currently use stale data
    for answers in some way, including Akamai, OpenDNS, Xerocole, and
    Nominum.  Their collective operational experience is that it provides
-   significant benefit with minimal downside.
+   significant benefit with minimal downside.  As these implementations
+   currently do this with no explicit signalling from the recursive to
+   authoritative, nor from the client to the recursive, this document
+   takes the position that explicit signalling is not required.
+   [Editor: After discussions with implementors], and in light of the
+   "DNS Camel" discussions, we are opting for implementation simplicity
+   over more knobs, bells and whistles. ]
 
-4.  Standards Action
+5.  Standards Action
 
    The definition of TTL in [RFC1035] Sections 3.2.1 and 4.1.3 is
    amended to read:
 
-   TTL  a 32 bit unsigned integer number of seconds in the range 0 -
+   TTL:  a 32 bit unsigned integer number of seconds in the range 0 -
       2147483647 that specifies the time interval that the resource
       record MAY be cached before the source of the information MUST
       again be consulted.  Zero values are interpreted to mean that the
@@ -167,16 +201,19 @@ Table of Contents
       interval, the record MAY be used as though it has a remaining TTL
       of 1 second.
 
-5.  EDNS Option
+6.  EDNS Option
 
-   While the basic behaviour of this answer-of-last-resort can be
-   achieved with changes only to resolvers, explicit signalling about
-   the use of stale data can be done with an EDNS [RFC6891] option.
+   The answer-of-last-resort can be achieved with changes only to
+   resolvers, explicit signalling about the use of stale data can be
+   done with an EDNS [RFC6891] option.  This EDNS option can be included
+   from a stub to a recursive, explicitly signalling that it does NOT
+   want stale answers.  It is expected that this (optional) extension
+   could be useful for debugging.
 
-   [ This section will be fleshed out a bit more thoroughly if there is
-   interest in pursuing the option. ]
+   [ NOTE: This option adds complexity to implementations, and so we are
+   making it optional for recursive servers to implement. ]
 
-5.1.  Option Format
+6.1.  Option Format
 
    The option is structured as follows:
 
@@ -186,12 +223,7 @@ Table of Contents
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
    2: |                        OPTION-LENGTH                      |
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-   4: |                     STALE-RRSET-INDEX 1                   |
-      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-   6: |                                                           |
-   8: |                         TTL-EXPIRY 1                      |
-      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-      :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
+   4: | D | U | S |             RESERVED                          |
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
    OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
@@ -200,52 +232,24 @@ Table of Contents
    OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   STALE-RRSET-INDEX  Two octets as a signed integer, indicating the
-      first RRSet in the message which is beyond its TTL, with RRSet
-      counting starting at 1 and spanning message sections.
+   D  Flag - if set, the client explicitly does NOT want stale answers.
+      If clear, the client would like additional information.
 
-   TTL-EXPIRY  Four octets as an unsigned integer, representing the
-      number of seconds that have passed since the TTL for the RRset
-      expired.
+   U  Flag - this indicates that the server understand Serve-Stale EDNS
+      option, and more information is communicated via the S flag [Ed
+      note: this exists to get around the issue of some authorative
+      servers simply echoing back the ENDS options ]
 
-5.2.  Option Usage
+   S  Flag - if set, this indicates that the answer provided is stale.
+      If clear, it indicates that the answer is NOT stale.
 
-   Software making a DNS request can signal that it understands Serve-
-   Stale by including the option with one STALE-RRSET-INDEX initialized
-   to any negative value and TTY-EXPIRY initialized to 0.  The index is
-   set to a negative value to detect mere reflection of the option by
-   responders that don't really understand it.
+   RESERVED  Reserved for future use.  Should be set to zero on send and
+      ignored on receipt.
 
-   If the request is made to a recursive resolver which used any stale
-   RRsets in its reply, it then fills in the corresponding indices and
-   staleness values.  If no records are stale, STALE-RRSET-INDEX and
-   TTL-EXPIRY are set to 0.
+   [ Editor note: Dear WG - we are somewhat shaky on this section, and
+   would like feedback on it... ]
 
-   If the request is made to an authoritative nameserver, it can use the
-   option in the reply to indicate how the resolver should treat the
-   records in the reply if they are unable to be refreshed later.  A
-   default for all RRsets in the message is established by setting the
-   first STALE-RRSET-INDEX to 0, with optional additional STALE-RRSET-
-   INDEX values overriding the default.  A TTL-EXPIRY value of 0 means
-   to never serve the RRset as stale, while non-zero values represent
-   the maximum amount of time it can be used before it MUST be evicted.
-   [ Does anyone really want to do this?  It adds more state into
-   resolvers.  Is the idea only for purists, or is there a practical
-   application? ]
-
-   No facility is made for a client of a resolver to signal that it
-   doesn't want stale answers, because if a client has knowledge of
-   Serve-Stale as an option, it also has enough knowledge to just ignore
-   any records that come back stale. [ There is admittedly the issue
-   that the client might just want to wait out the whole attempted
-   resolution, which there's currently no way to indicate.  The absolute
-   value of STALE-RRSET-INDEX could be taken as a timer the requester is
-   willing to wait for an answer, but that's kind of gross overloading
-   it like that Shame to burn another field on that though, but on the
-   other hand it would be nice if a client could always signal its
-   impatience level - "I must have an answer within 900 milliseconds!" ]
-
-6.  Example Method
+7.  Example Method
 
    There is conceivably more than one way a recursive resolver could
    responsibly implement this resiliency feature while still respecting
@@ -308,7 +312,7 @@ Table of Contents
    be refreshed, resolution can possibly still be successful if the
    authoritative servers themselves are still up.
 
-7.  Implementation Caveats
+8.  Implementation Caveats
 
    Answers from authoritative servers that have a DNS Response Code of
    either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have
@@ -355,12 +359,12 @@ Table of Contents
    maximum age, and whether to provide a feature for manually flushing
    only stale records.
 
-8.  Implementation Status
+9.  Implementation Status
 
    [RFC Editor: per RFC 6982 this section should be removed prior to
    publication.]
 
-   The algorithm described in the Section 6 section was originally
+   The algorithm described in the Section 7 section was originally
    implemented as a patch to BIND 9.7.0.  It has been in production on
    Akamai's production network since 2011, and effectively smoothed over
    transient failures and longer outages that would have resulted in
@@ -369,11 +373,29 @@ Table of Contents
 
    Unbound has a similar feature for serving stale answers, but it works
    in a very different way by returning whatever cached answer it has
-   before trying to refresh expired records.  This is unfortunately not
-   faithful to the ideal that data past expiry should attempt to be
-   refreshed before being served.
+   before trying to refresh expired records.
 
-9.  Security Considerations
+   Knot Resolver has an demo module here: https://knot-
+   resolver.readthedocs.io/en/stable/modules.html#serve-stale
+
+   BIND 9.12 support this functionality, and has some options that can
+   be twiddled - these include: stale-answer-enable, stale-answer-ttl,
+   max-stale-ttl, The BIND 9.12 announcement says:
+
+   "Akamai contributed a patch, written by a former member of the BIND
+   development team, that implements Serve Stale.  Serve Stale returns a
+   stale answer when a fresh answer is unavailable due to an
+   unresponsive authority.  Akamai has been using a version of BIND with
+   this patch internally for several years with good results.  A similar
+   approach enabled some public resolvers to continue to offer access to
+   popular sites like Twitter during the October 2016 massive DDoS
+   against Dyn and we wanted BIND to have the same ability."
+
+10.  new section
+
+   "
+
+11.  Security Considerations
 
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
@@ -387,28 +409,28 @@ Table of Contents
    potentially makes that easier, although without introducing a new
    risk.
 
-10.  Privacy Considerations
+12.  Privacy Considerations
 
    This document does not add any practical new privacy issues.
 
-11.  NAT Considerations
+13.  NAT Considerations
 
    The method described here is not affected by the use of NAT devices.
 
-12.  IANA Considerations
+14.  IANA Considerations
 
    This document contains no actions for IANA.  This section will be
    removed during conversion into an RFC by the RFC editor.
 
-13.  Acknowledgements
+15.  Acknowledgements
 
    The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy,
    and Jason Moreau for initial review.  Feedback from Robert Edmonds
    and Davey Song has also been incorporated.
 
-14.  References
+16.  References
 
-14.1.  Normative References
+16.1.  Normative References
 
    [RFC1035]  Mockapetris, P., "Domain names - implementation and
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
@@ -428,7 +450,7 @@ Table of Contents
               DOI 10.17487/RFC6891, April 2013,
               <https://www.rfc-editor.org/info/rfc6891>.
 
-14.2.  Informative References
+16.2.  Informative References
 
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
               Terminology", RFC 7719, DOI 10.17487/RFC7719, December
