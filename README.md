@@ -5,15 +5,15 @@
 
 
 DNSOP Working Group                                          D. Lawrence
-Internet-Draft                                       Akamai Technologies
+Internet-Draft                                              Oracle + Dyn
 Updates: 1034, 1035 (if approved)                              W. Kumari
-Intended status: Standards Track                                 P. Sood
-Expires: April 1, 2019                                            Google
-                                                      September 28, 2018
+Intended status: Standards Track                                  Google
+Expires: April 16, 2019                                          P. Sood
+                                                        October 13, 2018
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-01
+                    draft-ietf-dnsop-serve-stale-02
 
 Abstract
 
@@ -39,14 +39,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at https://datatracker.ietf.org/drafts/current/.
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 1, 2019.
+   This Internet-Draft will expire on April 16, 2019.
 
 Copyright Notice
 
@@ -55,7 +55,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -71,19 +71,20 @@ Table of Contents
    4.  Background
    5.  Standards Action
    6.  EDNS Option
-     6.1.  Option Format
+     6.1.  Option Format Proposal 1
+     6.2.  Option Usage
+     6.3.  Option Format Proposal 2
    7.  Example Method
    8.  Implementation Caveats
    9.  Implementation Status
-   10. new section
-   11. Security Considerations
-   12. Privacy Considerations
-   13. NAT Considerations
-   14. IANA Considerations
-   15. Acknowledgements
-   16. References
-     16.1.  Normative References
-     16.2.  Informative References
+   10. Security Considerations
+   11. Privacy Considerations
+   12. NAT Considerations
+   13. IANA Considerations
+   14. Acknowledgements
+   15. References
+     15.1.  Normative References
+     15.2.  Informative References
    Authors' Addresses
 
 1.  Introduction
@@ -97,41 +98,37 @@ Table of Contents
    expanded to allow for expired data to be used in the exceptional
    circumstance that a recursive resolver is unable to refresh the
    information.  It is predicated on the observation that authoritative
-   server unavailability causes outages even when the underlying data
+   server unavailability can cause outages even when the underlying data
    those servers would return is typically unchanged.
 
-   A method is described for this use of stale data, balancing the
-   competing needs of resiliency and freshness.  While this is intended
-   to be immediately useful to the installed base of DNS software, an
-   [RFC6891] EDNS option is also proposed in this document for enhanced
-   signalling around the use of stale data by implementations that
-   understand it.
-
-   Note that it is highly desirable to couple this with a
+   We describe a method below for this use of stale data, balancing the
+   competing needs of resiliency and freshness.  While this intended to
+   be immediately useful to the installed base of DNS software, we also
+   propose an [RFC6891] EDNS option for enhanced signalling around the
+   use of stale data by implementations that understand it.
 
 2.  Notes to readers
 
    [ RFC Editor, please remove this section before publication!
    Readers: This is conversational text to describe what we've done, and
-   will be removed, please don't bother sending editorial nits :-) ]
+   will be removed, please don't bother sending editorial nits. :-) ]
 
    Due to circumstances, the authors of this document got sidetracked,
    and we lost focus.  We are now reviving it, and are trying to address
-   / incorporate comments.  There has also been more deployment and
+   and incorporate comments.  There has also been more deployment and
    implementation recently, and so this document is now more describing
-   what is known to work instead of simply proposing a concept. ]
+   what is known to work instead of simply proposing a concept.
 
-   Open questions / notes:
+   Open questions:
 
-   o  As we know that a number of implementations are doing something
-      like serve-stale without any signalling, we are proposing removing
-      the signalling, other than a "please do not do serve-stale EDNS"
-      option for debugging.
+   o  The EDNS option that we propose for debugging is relatively full-
+      featured to identify which RRsets are stale.  It could be
+      simplified to just indicate that an answer is stale, or even
+      removed entirely in favour of an Extended Error result that
+      indicates staleness.
 
-   o  The TTL value to set in stale answers returned by recursive
-      resolvers
-
-   o
+   o  What TTL value to recommend be set in stale answers returned by
+      recursive resolvers.
 
 3.  Terminology
 
@@ -174,23 +171,19 @@ Table of Contents
    language, but does convey the natural language connotation that data
    becomes unusable past TTL expiry.
 
-   Several major recursive resolver operations currently use stale data
-   for answers in some way, including Akamai, OpenDNS, Xerocole, and
-   Nominum.  Their collective operational experience is that it provides
-   significant benefit with minimal downside.  As these implementations
-   currently do this with no explicit signalling from the recursive to
-   authoritative, nor from the client to the recursive, this document
-   takes the position that explicit signalling is not required.
-   [Editor: After discussions with implementors], and in light of the
-   "DNS Camel" discussions, we are opting for implementation simplicity
-   over more knobs, bells and whistles. ]
+   Several major recursive resolver operators currently use stale data
+   for answers in some way, including Akamai (via both Nomimum and
+   Xerocole), Knot, OpenDNS, and Unbound.  Apple can also use stale data
+   as part of the Happy Eyeballs algorithms in mDNSResponder.  The
+   collective operational experience is that it provides significant
+   benefit with minimal downside.
 
 5.  Standards Action
 
    The definition of TTL in [RFC1035] Sections 3.2.1 and 4.1.3 is
    amended to read:
 
-   TTL:  a 32 bit unsigned integer number of seconds in the range 0 -
+   TTL  a 32 bit unsigned integer number of seconds in the range 0 -
       2147483647 that specifies the time interval that the resource
       record MAY be cached before the source of the information MUST
       again be consulted.  Zero values are interpreted to mean that the
@@ -198,26 +191,104 @@ Table of Contents
       not be cached.  Values with the high order bit set SHOULD be
       capped at no more than 2147483647.  If the authority for the data
       is unavailable when attempting to refresh the data past the given
-      interval, the record MAY be used as though it has a remaining TTL
-      of 1 second.
+      interval, the record MAY be used as though it is unexpired.
+
+   [ Discussion point: capping values with the high order bit as being
+   max positive, rather than 0, is a change from [RFC2181].  Also, we
+   could use this opportunity to recommend a much more sane maximum
+   value like 604800 seconds, one week. ]
 
 6.  EDNS Option
 
-   The answer-of-last-resort can be achieved with changes only to
-   resolvers, explicit signalling about the use of stale data can be
-   done with an EDNS [RFC6891] option.  This EDNS option can be included
-   from a stub to a recursive, explicitly signalling that it does NOT
-   want stale answers.  It is expected that this (optional) extension
-   could be useful for debugging.
+   While the basic behaviour of this answer-of-last-resort can be
+   achieved with changes only to resolvers, explicit signalling about
+   the use of stale data can be done with an EDNS [RFC6891] option.
+   This option can be included from a stub or forwarding resolver to a
+   recursive resolver, explicitly signalling that it does not want stale
+   answers, or for learning that stale data was in use.  It is expected
+   that this could be useful for debugging.
 
-   [ NOTE: This option adds complexity to implementations, and so we are
-   making it optional for recursive servers to implement. ]
+   [ This section will be fleshed out a bit more thoroughly if there is
+   interest in pursuing the option.  Here are two potential options that
+   could be used, one more fully-featured to indicate which RRsets are
+   stale and one much more simple to indicate that stale data is
+   present.  These are proposed as mutually exclusive; the final
+   document will have one or zero such options. ]
 
-6.1.  Option Format
+6.1.  Option Format Proposal 1
 
    The option is structured as follows:
 
                  +0 (MSB)                        +1 (LSB)
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+   0: |                         OPTION-CODE                       |
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+   2: |                        OPTION-LENGTH                      |
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+   4: |                     STALE-RRSET-INDEX 1                   |
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+   6: |                                                           |
+   8: |                         TTL-EXPIRY 1                      |
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+      :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
+      +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
+   OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
+      by IANA.
+
+   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
+      payload following OPTION-LENGTH, in octets.
+
+   STALE-RRSET-INDEX  Two octets as a signed integer, indicating the
+      first RRSet in the message which is beyond its TTL, with RRSet
+      counting starting at 1 and spanning message sections.
+
+   TTL-EXPIRY  Four octets as an unsigned integer, representing the
+      number of seconds that have passed since the TTL for the RRset
+      expired.
+
+6.2.  Option Usage
+
+   Software making a DNS request can signal that it understands Serve-
+   Stale by including the option with one STALE-RRSET-INDEX initialized
+   to any negative value and TTY-EXPIRY initialized to 0.  The index is
+   set to a negative value to detect mere reflection of the option by
+   responders that don't really understand it.
+
+   If the request is made to a recursive resolver which used any stale
+   RRsets in its reply, it then fills in the corresponding indices and
+   staleness values.  If no records are stale, STALE-RRSET-INDEX and
+   TTL-EXPIRY are set to 0.
+
+   If the request is made to an authoritative nameserver, it can use the
+   option in the reply to indicate how the resolver should treat the
+   records in the reply if they are unable to be refreshed later.  A
+   default for all RRsets in the message is established by setting the
+   first STALE-RRSET-INDEX to 0, with optional additional STALE-RRSET-
+   INDEX values overriding the default.  A TTL-EXPIRY value of 0 means
+   to never serve the RRset as stale, while non-zero values represent
+   the maximum amount of time it can be used before it MUST be evicted.
+   [ Does anyone really want to do this?  It adds more state into
+   resolvers.  Is the idea only for purists, or is there a practical
+   application? ]
+
+   No facility is made for a client of a resolver to signal that it
+   doesn't want stale answers, because if a client has knowledge of
+   Serve-Stale as an option, it also has enough knowledge to just ignore
+   any records that come back stale.  [ There is admittedly the issue
+   that the client might just want to wait out the whole attempted
+   resolution, which there's currently no way to indicate.  The absolute
+   value of STALE-RRSET-INDEX could be taken as a timer the requester is
+   willing to wait for an answer, but that's kind of gross overloading
+   it like that.  Shame to burn another field on that, but on the other
+   hand it might also be nice if a client could always signal its
+   impatience level - "I must have an answer within 900 milliseconds!" ]
+
+6.3.  Option Format Proposal 2
+
+   The option is structured as follows:
+
+                +0 (MSB)                        +1 (LSB)
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
    0: |                         OPTION-CODE                       |
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
@@ -229,25 +300,23 @@ Table of Contents
    OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
       by IANA.
 
-   OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
+   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   D  Flag - if set, the client explicitly does NOT want stale answers.
-      If clear, the client would like additional information.
+   D Flag  If set, the client explicitly does NOT want stale answers.
+      If clear, the client would like an indication of whether any data
+      in the response is stale.
 
-   U  Flag - this indicates that the server understand Serve-Stale EDNS
-      option, and more information is communicated via the S flag [Ed
-      note: this exists to get around the issue of some authorative
-      servers simply echoing back the ENDS options ]
+   U Flag  This indicates that the server understand Serve-Stale EDNS
+      option, and more information is communicated via the S flag.  It
+      exists to get around the issue of some authorative servers simply
+      echoing back ENDS options it does not understand.
 
-   S  Flag - if set, this indicates that the answer provided is stale.
-      If clear, it indicates that the answer is NOT stale.
+   S Flag  If set, this indicates that the response contains stale data.
+      If clear, no data in the response has reached its TTL expiry.
 
    RESERVED  Reserved for future use.  Should be set to zero on send and
       ignored on receipt.
-
-   [ Editor note: Dear WG - we are somewhat shaky on this section, and
-   would like feedback on it... ]
 
 7.  Example Method
 
@@ -289,13 +358,16 @@ Table of Contents
    client response timer has elapsed, the resolver SHOULD then check its
    cache to see whether there is expired data that would satisfy the
    request.  If so, it adds that data to the response message and SHOULD
-   set the TTL of each expired record in the message to 1 second.  The
+   set the TTL of each expired record in the message to 30 seconds.  The
    response is then sent to the client while the resolver continues its
-   attempt to refresh the data. 1 second was chosen because historically
-   0 second TTLs have been problematic for some implementations.  It not
-   only sidesteps those potential problems with no practical negative
-   consequence, it would also rate limit further queries from any client
-   that is honoring the TTL, such as a forwarding resolver.
+   attempt to refresh the data.  30 second was chosen because
+   historically 0 second TTLs have been problematic for some
+   implementations, and similarly very short TTLs could lead to
+   congestive collapse as TTL-respecting clients rapidly try to refresh.
+   30 seconds not only sidesteps those potential problems with no
+   practical negative consequence, it would also rate limit further
+   queries from any client that is honoring the TTL, such as a
+   forwarding resolver.
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
@@ -328,7 +400,13 @@ Table of Contents
    enabled all the time.  If stale data were used immediately and then a
    cache refresh attempted after the client response has been sent, the
    resolver would frequently be sending data that it would have had no
-   trouble refreshing.
+   trouble refreshing.  As modern resolvers use techniques like pre-
+   fetching and request coalescing for efficiency, it is not necessary
+   that every client request needs to trigger a new lookup flow in the
+   presence of stale data, but rather than a good-faith effort have been
+   recently made to refresh the stale data before it is delivered to any
+   client.  The recommended period between attempting refreshes is 30
+   seconds.
 
    It is important to continue the resolution attempt after the stale
    response has been sent, until the query resolution timeout, because
@@ -368,34 +446,29 @@ Table of Contents
    implemented as a patch to BIND 9.7.0.  It has been in production on
    Akamai's production network since 2011, and effectively smoothed over
    transient failures and longer outages that would have resulted in
-   major incidents.  The patch was contributed to the Internet Systems
-   Consortium and is now distributed with BIND 9.12.
+   major incidents.  The patch was contributed to Internet Systems
+   Consortium and the functionality is now available in BIND 9.12 via
+   the options stale-answer-enable, stale-answer-ttl, and max-stale-ttl.
 
    Unbound has a similar feature for serving stale answers, but it works
    in a very different way by returning whatever cached answer it has
-   before trying to refresh expired records.
+   before trying to refresh expired records.  This is unfortunately not
+   faithful to the ideal that data past expiry should attempt to be
+   refreshed before being served.
 
    Knot Resolver has an demo module here: https://knot-
    resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
-   BIND 9.12 support this functionality, and has some options that can
-   be twiddled - these include: stale-answer-enable, stale-answer-ttl,
-   max-stale-ttl, The BIND 9.12 announcement says:
+   Details of Apple's implementation are not currently known.
 
-   "Akamai contributed a patch, written by a former member of the BIND
-   development team, that implements Serve Stale.  Serve Stale returns a
-   stale answer when a fresh answer is unavailable due to an
-   unresponsive authority.  Akamai has been using a version of BIND with
-   this patch internally for several years with good results.  A similar
-   approach enabled some public resolvers to continue to offer access to
-   popular sites like Twitter during the October 2016 massive DDoS
-   against Dyn and we wanted BIND to have the same ability."
+   In the research paper "When the Dike Breaks: Dissecting DNS Defenses
+   During DDoS" [DikeBreaks], the authors detected some use of stale
+   answers by resolvers when authorities came under attack.  Their
+   research results suggest that more widespread adoption of the
+   technique would significantly improve resiliency for the large number
+   of requests that fail during an attack.
 
-10.  new section
-
-   "
-
-11.  Security Considerations
+10.  Security Considerations
 
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
@@ -409,28 +482,28 @@ Table of Contents
    potentially makes that easier, although without introducing a new
    risk.
 
-12.  Privacy Considerations
+11.  Privacy Considerations
 
    This document does not add any practical new privacy issues.
 
-13.  NAT Considerations
+12.  NAT Considerations
 
    The method described here is not affected by the use of NAT devices.
 
-14.  IANA Considerations
+13.  IANA Considerations
 
    This document contains no actions for IANA.  This section will be
    removed during conversion into an RFC by the RFC editor.
 
-15.  Acknowledgements
+14.  Acknowledgements
 
    The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy,
-   and Jason Moreau for initial review.  Feedback from Robert Edmonds
-   and Davey Song has also been incorporated.
+   and Jason Moreau for initial review.  Feedback from Robert Edmonds,
+   Davey Song, and Ralf Weber has also been incorporated.
 
-16.  References
+15.  References
 
-16.1.  Normative References
+15.1.  Normative References
 
    [RFC1035]  Mockapetris, P., "Domain names - implementation and
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
@@ -438,8 +511,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -447,10 +520,17 @@ Table of Contents
 
    [RFC6891]  Damas, J., Graff, M., and P. Vixie, "Extension Mechanisms
               for DNS (EDNS(0))", STD 75, RFC 6891,
-              DOI 10.17487/RFC6891, April 2013,
-              <https://www.rfc-editor.org/info/rfc6891>.
+              DOI 10.17487/RFC6891, April 2013, <https://www.rfc-
+              editor.org/info/rfc6891>.
 
-16.2.  Informative References
+15.2.  Informative References
+
+   [DikeBreaks]
+              Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.
+              Davids, "When the Dike Breaks: Dissecting DNS Defenses
+              During DDos", ACM 2018 Internet Measurement Conference,
+              DOI 10.1145/3278532.3278534, October 2018,
+              <https://www.isi.edu/~johnh/PAPERS/Moura18b.pdf>.
 
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
               Terminology", RFC 7719, DOI 10.17487/RFC7719, December
@@ -459,12 +539,9 @@ Table of Contents
 Authors' Addresses
 
    David C Lawrence
-   Akamai Technologies
-   150 Broadway
-   Cambridge  MA 02142-1054
-   USA
+   Oracle + Dyn
 
-   Email: tale@akamai.com
+   Email: tale@dd.org
 
 
    Warren Kumari
@@ -477,7 +554,6 @@ Authors' Addresses
 
 
    Puneet Sood
-   Google
 
    Email: puneets@google.com
 
