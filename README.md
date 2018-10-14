@@ -7,8 +7,8 @@
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                              Oracle + Dyn
 Updates: 1034, 1035 (if approved)                              W. Kumari
-Intended status: Standards Track                                  Google
-Expires: April 17, 2019                                          P. Sood
+Intended status: Standards Track                                 P. Sood
+Expires: April 17, 2019                                           Google
                                                         October 14, 2018
 
 
@@ -566,6 +566,7 @@ Authors' Addresses
 
 
    Puneet Sood
+   Google
 
    Email: puneets@google.com
 
