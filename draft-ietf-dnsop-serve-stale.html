@@ -402,7 +402,7 @@
 
   <meta name="dct.creator" content="Lawrence, D., Kumari, W., and P. Sood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dnsop-serve-stale-02" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-10-13" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-10-14" />
   <meta name="dct.abstract" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data." />
   <meta name="description" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data." />
 
@@ -430,12 +430,12 @@
 <td class="right">Google</td>
 </tr>
 <tr>
-<td class="left">Expires: April 16, 2019</td>
+<td class="left">Expires: April 17, 2019</td>
 <td class="right">P. Sood</td>
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">October 13, 2018</td>
+<td class="right">October 14, 2018</td>
 </tr>
 
     	
@@ -453,7 +453,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 16, 2019.</p>
+<p>This Internet-Draft will expire on April 17, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2018 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -514,7 +514,7 @@
 </h1>
 <p id="rfc.section.1.p.1">Traditionally the Time To Live (TTL) of a DNS resource record has been understood to represent the maximum number of seconds that a record can be used before it must be discarded, based on its description and usage in <a href="#RFC1035" class="xref">[RFC1035]</a> and clarifications in <a href="#RFC2181" class="xref">[RFC2181]</a>.</p>
 <p id="rfc.section.1.p.2">This document proposes that the definition of the TTL be explicitly expanded to allow for expired data to be used in the exceptional circumstance that a recursive resolver is unable to refresh the information.  It is predicated on the observation that authoritative server unavailability can cause outages even when the underlying data those servers would return is typically unchanged.</p>
-<p id="rfc.section.1.p.3">We describe a method below for this use of stale data, balancing the competing needs of resiliency and freshness.  While this intended to be immediately useful to the installed base of DNS software, we also propose an <a href="#RFC6891" class="xref">[RFC6891]</a> EDNS option for enhanced signalling around the use of stale data by implementations that understand it.</p>
+<p id="rfc.section.1.p.3">We describe a method below for this use of stale data, balancing the competing needs of resiliency and freshness.  While this is intended to be immediately useful to the installed base of DNS software, we also propose an <a href="#RFC6891" class="xref">[RFC6891]</a> EDNS option for enhanced signalling around the use of stale data by implementations that understand it.</p>
 <h1 id="rfc.section.2">
 <a href="#rfc.section.2">2.</a> <a href="#notes-to-readers" id="notes-to-readers">Notes to readers</a>
 </h1>
@@ -550,12 +550,12 @@
 <dt>TTL</dt>
 <dd style="margin-left: 8">a 32 bit unsigned integer number of seconds in the range 0 - 2147483647 that specifies the time interval that the resource record MAY be cached before the source of the information MUST again be consulted.  Zero values are interpreted to mean that the RR can only be used for the transaction in progress, and should not be cached.  Values with the high order bit set SHOULD be capped at no more than 2147483647.  If the authority for the data is unavailable when attempting to refresh the data past the given interval, the record MAY be used as though it is unexpired.</dd>
 </dl>
-<p id="rfc.section.5.p.3">[ Discussion point: capping values with the high order bit as being max positive, rather than 0, is a change from <a href="#RFC2181" class="xref">[RFC2181]</a>.  Also, we could use this opportunity to recommend a much more sane maximum value like 604800 seconds, one week. ]</p>
+<p id="rfc.section.5.p.3">[ Discussion point: capping values with the high order bit as being max positive, rather than 0, is a change from <a href="#RFC2181" class="xref">[RFC2181]</a>.  Also, we could use this opportunity to recommend a much more sane maximum value like 604800 seconds, one week, instead of the literal maximum of 68 years. ]</p>
 <h1 id="rfc.section.6">
 <a href="#rfc.section.6">6.</a> <a href="#edns-option" id="edns-option">EDNS Option</a>
 </h1>
 <p id="rfc.section.6.p.1">While the basic behaviour of this answer-of-last-resort can be achieved with changes only to resolvers, explicit signalling about the use of stale data can be done with an EDNS <a href="#RFC6891" class="xref">[RFC6891]</a> option.  This option can be included from a stub or forwarding resolver to a recursive resolver, explicitly signalling that it does not want stale answers, or for learning that stale data was in use.  It is expected that this could be useful for debugging.</p>
-<p id="rfc.section.6.p.2">[ This section will be fleshed out a bit more thoroughly if there is interest in pursuing the option. Here are two potential options that could be used, one more fully-featured to indicate which RRsets are stale and one much more simple to indicate that stale data is present. These are proposed as mutually exclusive; the final document will have one or zero such options. ]</p>
+<p id="rfc.section.6.p.2">[ NOTE: This section will be fleshed out a bit more thoroughly if there is interest in pursuing the option. Here are two potential options that could be used, one more fully-featured to indicate which RRsets are stale and one much more simple to indicate that stale data is present. These are proposed as mutually exclusive; the final document will have one or zero such options.  We're especially soliciting feedback on this from the working group. ]</p>
 <h1 id="rfc.section.6.1">
 <a href="#rfc.section.6.1">6.1.</a> <a href="#option-format-proposal-1" id="option-format-proposal-1">Option Format Proposal 1</a>
 </h1>
@@ -578,13 +578,13 @@
 <p></p>
 
 <dl>
-<dt>OPTION-CODE</dt>
+<dt>OPTION-CODE:</dt>
 <dd style="margin-left: 8">2 octets per <a href="#RFC6891" class="xref">[RFC6891]</a>.  For Serve-Stale the code is TBD by IANA.</dd>
-<dt>OPTION-LENGTH</dt>
+<dt>OPTION-LENGTH:</dt>
 <dd style="margin-left: 8">2 octets per <a href="#RFC6891" class="xref">[RFC6891]</a>.  Contains the length of the payload following OPTION-LENGTH, in octets.</dd>
-<dt>STALE-RRSET-INDEX</dt>
+<dt>STALE-RRSET-INDEX:</dt>
 <dd style="margin-left: 8">Two octets as a signed integer, indicating the first RRSet in the message which is beyond its TTL, with RRSet counting starting at 1 and spanning message sections.</dd>
-<dt>TTL-EXPIRY</dt>
+<dt>TTL-EXPIRY:</dt>
 <dd style="margin-left: 8">Four octets as an unsigned integer, representing the number of seconds that have passed since the TTL for the RRset expired.</dd>
 </dl>
 <h1 id="rfc.section.6.2">
@@ -611,17 +611,17 @@
 <p></p>
 
 <dl>
-<dt>OPTION-CODE</dt>
+<dt>OPTION-CODE:</dt>
 <dd style="margin-left: 8">2 octets per <a href="#RFC6891" class="xref">[RFC6891]</a>.  For Serve-Stale the code is TBD by IANA.</dd>
-<dt>OPTION-LENGTH</dt>
+<dt>OPTION-LENGTH:</dt>
 <dd style="margin-left: 8">2 octets per <a href="#RFC6891" class="xref">[RFC6891]</a>.  Contains the length of the payload following OPTION-LENGTH, in octets.</dd>
-<dt>D Flag</dt>
+<dt>D Flag:</dt>
 <dd style="margin-left: 8">If set, the client explicitly does NOT want stale answers. If clear, the client would like an indication of whether any data in the response is stale.</dd>
-<dt>U Flag</dt>
-<dd style="margin-left: 8">This indicates that the server understand Serve-Stale EDNS option, and more information is communicated via the S flag.  It exists to get around the issue of some authorative servers simply echoing back ENDS options it does not understand.</dd>
-<dt>S Flag</dt>
+<dt>U Flag:</dt>
+<dd style="margin-left: 8">This indicates that the server understands the Serve-Stale EDNS option, and more information is communicated via the S flag.  It exists to get around the issue of some authorative servers simply echoing back ENDS options it does not understand.</dd>
+<dt>S Flag:</dt>
 <dd style="margin-left: 8">If set, this indicates that the response contains stale data.  If clear, no data in the response has reached its TTL expiry.</dd>
-<dt>RESERVED</dt>
+<dt>RESERVED:</dt>
 <dd style="margin-left: 8">Reserved for future use. Should be set to zero on send and ignored on receipt.</dd>
 </dl>
 <h1 id="rfc.section.7">
@@ -640,7 +640,7 @@
 <p id="rfc.section.7.p.5">When a request is received by the recursive resolver, it SHOULD start the client response timer.  This timer is used to avoid client timeouts.  It SHOULD be configurable, with a recommended value of 1.8 seconds.</p>
 <p id="rfc.section.7.p.6">The resolver then checks its cache for an unexpired answer. If it finds none and the Recursion Desired flag is not set in the request, it SHOULD immediately return the response without consulting the cache for expired records.</p>
 <p id="rfc.section.7.p.7">If iterative lookups will be done, it SHOULD start the query resolution timer.  This timer bounds the work done by the resolver, and is commonly around 10 to 30 seconds.</p>
-<p id="rfc.section.7.p.8">If the answer has not been completely determined by the time the client response timer has elapsed, the resolver SHOULD then check its cache to see whether there is expired data that would satisfy the request.  If so, it adds that data to the response message and SHOULD set the TTL of each expired record in the message to 30 seconds.  The response is then sent to the client while the resolver continues its attempt to refresh the data.  30 second was chosen because historically 0 second TTLs have been problematic for some implementations, and similarly very short TTLs could lead to congestive collapse as TTL-respecting clients rapidly try to refresh.  30 seconds not only sidesteps those potential problems with no practical negative consequence, it would also rate limit further queries from any client that is honoring the TTL, such as a forwarding resolver.</p>
+<p id="rfc.section.7.p.8">If the answer has not been completely determined by the time the client response timer has elapsed, the resolver SHOULD then check its cache to see whether there is expired data that would satisfy the request.  If so, it adds that data to the response message and SHOULD set the TTL of each expired record in the message to 30 seconds.  The response is then sent to the client while the resolver continues its attempt to refresh the data.  30 second was chosen because historically 0 second TTLs have been problematic for some implementations, and similarly very short TTLs could lead to congestive collapse as TTL-respecting clients rapidly try to refresh.  30 seconds not only sidesteps those potential problems with no practical negative consequence, it would also rate limit further queries from any client that is honoring the TTL, such as a forwarding resolver. [ NOTE: we're looking for further working group feedback on this value. ]</p>
 <p id="rfc.section.7.p.9">The maximum stale timer is used for cache management and is independent of the query resolution process. This timer is conceptually different from the maximum cache TTL that exists in many resolvers, the latter being a clamp on the value of TTLs as received from authoritative servers.  The maximum stale timer SHOULD be configurable, and defines the length of time after a record expires that it SHOULD be retained in the cache.  The suggested value is 7 days, which gives time to notice the resolution problem and for human intervention to fix it.</p>
 <p id="rfc.section.7.p.10">This same basic technique MAY be used to handle stale data associated with delegations.  If authoritative server addresses are not able to be refreshed, resolution can possibly still be successful if the authoritative servers themselves are still up.</p>
 <h1 id="rfc.section.8">
@@ -660,7 +660,7 @@
 <p id="rfc.section.9.p.3">Unbound has a similar feature for serving stale answers, but it works in a very different way by returning whatever cached answer it has before trying to refresh expired records. This is unfortunately not faithful to the ideal that data past expiry should attempt to be refreshed before being served.</p>
 <p id="rfc.section.9.p.4">Knot Resolver has an demo module here: https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale</p>
 <p id="rfc.section.9.p.5">Details of Apple's implementation are not currently known.</p>
-<p id="rfc.section.9.p.6">In the research paper "When the Dike Breaks: Dissecting DNS Defenses During DDoS" <a href="#DikeBreaks" class="xref">[DikeBreaks]</a>, the authors detected some use of stale answers by resolvers when authorities came under attack.  Their research results suggest that more widespread adoption of the technique would significantly improve resiliency for the large number of requests that fail during an attack.</p>
+<p id="rfc.section.9.p.6">In the research paper "When the Dike Breaks: Dissecting DNS Defenses During DDoS" <a href="#DikeBreaks" class="xref">[DikeBreaks]</a>, the authors detected some use of stale answers by resolvers when authorities came under attack.  Their research results suggest that more widespread adoption of the technique would significantly improve resiliency for the large number of requests that fail or experience abnormally long resolution times during an attack.</p>
 <h1 id="rfc.section.10">
 <a href="#rfc.section.10">10.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
 </h1>
@@ -681,7 +681,7 @@
 <h1 id="rfc.section.14">
 <a href="#rfc.section.14">14.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a>
 </h1>
-<p id="rfc.section.14.p.1">The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy, and Jason Moreau for initial review.  Feedback from Robert Edmonds, Davey Song, and Ralf Weber has also been incorporated.</p>
+<p id="rfc.section.14.p.1">The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy, and Jason Moreau for initial review.  Feedback from Robert Edmonds, Giovane Moura, Davey Song, and Ralf Weber has also been incorporated.</p>
 <h1 id="rfc.references">
 <a href="#rfc.references">15.</a> References</h1>
 <h1 id="rfc.references.1">

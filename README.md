@@ -8,8 +8,8 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                              Oracle + Dyn
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                  Google
-Expires: April 16, 2019                                          P. Sood
-                                                        October 13, 2018
+Expires: April 17, 2019                                          P. Sood
+                                                        October 14, 2018
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 16, 2019.
+   This Internet-Draft will expire on April 17, 2019.
 
 Copyright Notice
 
@@ -102,10 +102,10 @@ Table of Contents
    those servers would return is typically unchanged.
 
    We describe a method below for this use of stale data, balancing the
-   competing needs of resiliency and freshness.  While this intended to
-   be immediately useful to the installed base of DNS software, we also
-   propose an [RFC6891] EDNS option for enhanced signalling around the
-   use of stale data by implementations that understand it.
+   competing needs of resiliency and freshness.  While this is intended
+   to be immediately useful to the installed base of DNS software, we
+   also propose an [RFC6891] EDNS option for enhanced signalling around
+   the use of stale data by implementations that understand it.
 
 2.  Notes to readers
 
@@ -196,7 +196,8 @@ Table of Contents
    [ Discussion point: capping values with the high order bit as being
    max positive, rather than 0, is a change from [RFC2181].  Also, we
    could use this opportunity to recommend a much more sane maximum
-   value like 604800 seconds, one week. ]
+   value like 604800 seconds, one week, instead of the literal maximum
+   of 68 years. ]
 
 6.  EDNS Option
 
@@ -208,12 +209,13 @@ Table of Contents
    answers, or for learning that stale data was in use.  It is expected
    that this could be useful for debugging.
 
-   [ This section will be fleshed out a bit more thoroughly if there is
-   interest in pursuing the option.  Here are two potential options that
-   could be used, one more fully-featured to indicate which RRsets are
-   stale and one much more simple to indicate that stale data is
-   present.  These are proposed as mutually exclusive; the final
-   document will have one or zero such options. ]
+   [ NOTE: This section will be fleshed out a bit more thoroughly if
+   there is interest in pursuing the option.  Here are two potential
+   options that could be used, one more fully-featured to indicate which
+   RRsets are stale and one much more simple to indicate that stale data
+   is present.  These are proposed as mutually exclusive; the final
+   document will have one or zero such options.  We're especially
+   soliciting feedback on this from the working group. ]
 
 6.1.  Option Format Proposal 1
 
@@ -233,17 +235,17 @@ Table of Contents
       :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
-   OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
-      by IANA.
+   OPTION-CODE:  2 octets per [RFC6891].  For Serve-Stale the code is
+      TBD by IANA.
 
-   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
+   OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   STALE-RRSET-INDEX  Two octets as a signed integer, indicating the
+   STALE-RRSET-INDEX:  Two octets as a signed integer, indicating the
       first RRSet in the message which is beyond its TTL, with RRSet
       counting starting at 1 and spanning message sections.
 
-   TTL-EXPIRY  Four octets as an unsigned integer, representing the
+   TTL-EXPIRY:  Four octets as an unsigned integer, representing the
       number of seconds that have passed since the TTL for the RRset
       expired.
 
@@ -297,26 +299,27 @@ Table of Contents
    4: | D | U | S |             RESERVED                          |
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
-   OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
-      by IANA.
+   OPTION-CODE:  2 octets per [RFC6891].  For Serve-Stale the code is
+      TBD by IANA.
 
-   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
+   OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   D Flag  If set, the client explicitly does NOT want stale answers.
+   D Flag:  If set, the client explicitly does NOT want stale answers.
       If clear, the client would like an indication of whether any data
       in the response is stale.
 
-   U Flag  This indicates that the server understand Serve-Stale EDNS
-      option, and more information is communicated via the S flag.  It
-      exists to get around the issue of some authorative servers simply
-      echoing back ENDS options it does not understand.
+   U Flag:  This indicates that the server understands the Serve-Stale
+      EDNS option, and more information is communicated via the S flag.
+      It exists to get around the issue of some authorative servers
+      simply echoing back ENDS options it does not understand.
 
-   S Flag  If set, this indicates that the response contains stale data.
-      If clear, no data in the response has reached its TTL expiry.
+   S Flag:  If set, this indicates that the response contains stale
+      data.  If clear, no data in the response has reached its TTL
+      expiry.
 
-   RESERVED  Reserved for future use.  Should be set to zero on send and
-      ignored on receipt.
+   RESERVED:  Reserved for future use.  Should be set to zero on send
+      and ignored on receipt.
 
 7.  Example Method
 
@@ -367,7 +370,8 @@ Table of Contents
    30 seconds not only sidesteps those potential problems with no
    practical negative consequence, it would also rate limit further
    queries from any client that is honoring the TTL, such as a
-   forwarding resolver.
+   forwarding resolver. [ NOTE: we're looking for further working group
+   feedback on this value. ]
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
@@ -466,7 +470,8 @@ Table of Contents
    answers by resolvers when authorities came under attack.  Their
    research results suggest that more widespread adoption of the
    technique would significantly improve resiliency for the large number
-   of requests that fail during an attack.
+   of requests that fail or experience abnormally long resolution times
+   during an attack.
 
 10.  Security Considerations
 
@@ -499,7 +504,7 @@ Table of Contents
 
    The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy,
    and Jason Moreau for initial review.  Feedback from Robert Edmonds,
-   Davey Song, and Ralf Weber has also been incorporated.
+   Giovane Moura, Davey Song, and Ralf Weber has also been incorporated.
 
 15.  References
 

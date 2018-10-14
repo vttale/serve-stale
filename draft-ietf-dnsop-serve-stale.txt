@@ -6,8 +6,8 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                              Oracle + Dyn
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                  Google
-Expires: April 16, 2019                                          P. Sood
-                                                        October 13, 2018
+Expires: April 17, 2019                                          P. Sood
+                                                        October 14, 2018
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 16, 2019.
+   This Internet-Draft will expire on April 17, 2019.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Lawrence, et al.         Expires April 16, 2019                 [Page 1]
+Lawrence, et al.         Expires April 17, 2019                 [Page 1]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
@@ -87,7 +87,7 @@ Table of Contents
    7.  Example Method  . . . . . . . . . . . . . . . . . . . . . . .   7
    8.  Implementation Caveats  . . . . . . . . . . . . . . . . . . .   9
    9.  Implementation Status . . . . . . . . . . . . . . . . . . . .  10
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .  10
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .  11
    11. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  11
    12. NAT Considerations  . . . . . . . . . . . . . . . . . . . . .  11
    13. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  11
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lawrence, et al.         Expires April 16, 2019                 [Page 2]
+Lawrence, et al.         Expires April 17, 2019                 [Page 2]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
@@ -120,10 +120,10 @@ Internet-Draft               DNS Serve Stale                October 2018
    those servers would return is typically unchanged.
 
    We describe a method below for this use of stale data, balancing the
-   competing needs of resiliency and freshness.  While this intended to
-   be immediately useful to the installed base of DNS software, we also
-   propose an [RFC6891] EDNS option for enhanced signalling around the
-   use of stale data by implementations that understand it.
+   competing needs of resiliency and freshness.  While this is intended
+   to be immediately useful to the installed base of DNS software, we
+   also propose an [RFC6891] EDNS option for enhanced signalling around
+   the use of stale data by implementations that understand it.
 
 2.  Notes to readers
 
@@ -165,7 +165,7 @@ Internet-Draft               DNS Serve Stale                October 2018
 
 
 
-Lawrence, et al.         Expires April 16, 2019                 [Page 3]
+Lawrence, et al.         Expires April 17, 2019                 [Page 3]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
@@ -221,7 +221,7 @@ Internet-Draft               DNS Serve Stale                October 2018
 
 
 
-Lawrence, et al.         Expires April 16, 2019                 [Page 4]
+Lawrence, et al.         Expires April 17, 2019                 [Page 4]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
@@ -234,7 +234,8 @@ Internet-Draft               DNS Serve Stale                October 2018
    [ Discussion point: capping values with the high order bit as being
    max positive, rather than 0, is a change from [RFC2181].  Also, we
    could use this opportunity to recommend a much more sane maximum
-   value like 604800 seconds, one week. ]
+   value like 604800 seconds, one week, instead of the literal maximum
+   of 68 years. ]
 
 6.  EDNS Option
 
@@ -246,12 +247,13 @@ Internet-Draft               DNS Serve Stale                October 2018
    answers, or for learning that stale data was in use.  It is expected
    that this could be useful for debugging.
 
-   [ This section will be fleshed out a bit more thoroughly if there is
-   interest in pursuing the option.  Here are two potential options that
-   could be used, one more fully-featured to indicate which RRsets are
-   stale and one much more simple to indicate that stale data is
-   present.  These are proposed as mutually exclusive; the final
-   document will have one or zero such options. ]
+   [ NOTE: This section will be fleshed out a bit more thoroughly if
+   there is interest in pursuing the option.  Here are two potential
+   options that could be used, one more fully-featured to indicate which
+   RRsets are stale and one much more simple to indicate that stale data
+   is present.  These are proposed as mutually exclusive; the final
+   document will have one or zero such options.  We're especially
+   soliciting feedback on this from the working group. ]
 
 6.1.  Option Format Proposal 1
 
@@ -271,25 +273,26 @@ Internet-Draft               DNS Serve Stale                October 2018
       :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
-   OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
-      by IANA.
 
 
 
 
-Lawrence, et al.         Expires April 16, 2019                 [Page 5]
+Lawrence, et al.         Expires April 17, 2019                 [Page 5]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
 
-   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
+   OPTION-CODE:  2 octets per [RFC6891].  For Serve-Stale the code is
+      TBD by IANA.
+
+   OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   STALE-RRSET-INDEX  Two octets as a signed integer, indicating the
+   STALE-RRSET-INDEX:  Two octets as a signed integer, indicating the
       first RRSet in the message which is beyond its TTL, with RRSet
       counting starting at 1 and spanning message sections.
 
-   TTL-EXPIRY  Four octets as an unsigned integer, representing the
+   TTL-EXPIRY:  Four octets as an unsigned integer, representing the
       number of seconds that have passed since the TTL for the RRset
       expired.
 
@@ -327,16 +330,16 @@ Internet-Draft               DNS Serve Stale                October 2018
    value of STALE-RRSET-INDEX could be taken as a timer the requester is
    willing to wait for an answer, but that's kind of gross overloading
    it like that.  Shame to burn another field on that, but on the other
-   hand it might also be nice if a client could always signal its
-   impatience level - "I must have an answer within 900 milliseconds!" ]
 
 
 
-
-Lawrence, et al.         Expires April 16, 2019                 [Page 6]
+Lawrence, et al.         Expires April 17, 2019                 [Page 6]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
+
+   hand it might also be nice if a client could always signal its
+   impatience level - "I must have an answer within 900 milliseconds!" ]
 
 6.3.  Option Format Proposal 2
 
@@ -351,26 +354,27 @@ Internet-Draft               DNS Serve Stale                October 2018
    4: | D | U | S |             RESERVED                          |
       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 
-   OPTION-CODE  2 octets per [RFC6891].  For Serve-Stale the code is TBD
-      by IANA.
+   OPTION-CODE:  2 octets per [RFC6891].  For Serve-Stale the code is
+      TBD by IANA.
 
-   OPTION-LENGTH  2 octets per [RFC6891].  Contains the length of the
+   OPTION-LENGTH:  2 octets per [RFC6891].  Contains the length of the
       payload following OPTION-LENGTH, in octets.
 
-   D Flag  If set, the client explicitly does NOT want stale answers.
+   D Flag:  If set, the client explicitly does NOT want stale answers.
       If clear, the client would like an indication of whether any data
       in the response is stale.
 
-   U Flag  This indicates that the server understand Serve-Stale EDNS
-      option, and more information is communicated via the S flag.  It
-      exists to get around the issue of some authorative servers simply
-      echoing back ENDS options it does not understand.
+   U Flag:  This indicates that the server understands the Serve-Stale
+      EDNS option, and more information is communicated via the S flag.
+      It exists to get around the issue of some authorative servers
+      simply echoing back ENDS options it does not understand.
 
-   S Flag  If set, this indicates that the response contains stale data.
-      If clear, no data in the response has reached its TTL expiry.
+   S Flag:  If set, this indicates that the response contains stale
+      data.  If clear, no data in the response has reached its TTL
+      expiry.
 
-   RESERVED  Reserved for future use.  Should be set to zero on send and
-      ignored on receipt.
+   RESERVED:  Reserved for future use.  Should be set to zero on send
+      and ignored on receipt.
 
 7.  Example Method
 
@@ -381,18 +385,18 @@ Internet-Draft               DNS Serve Stale                October 2018
    In this example method three notable timers drive considerations for
    the use of stale data, as follows:
 
-   o  A client response timer, which is the maximum amount of time a
-      recursive resolver should allow between the receipt of a
-      resolution request and sending its response.
 
 
 
 
-
-Lawrence, et al.         Expires April 16, 2019                 [Page 7]
+Lawrence, et al.         Expires April 17, 2019                 [Page 7]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
+
+   o  A client response timer, which is the maximum amount of time a
+      recursive resolver should allow between the receipt of a
+      resolution request and sending its response.
 
    o  A query resolution timer, which caps the total amount of time a
       recursive resolver spends processing the query.
@@ -430,25 +434,26 @@ Internet-Draft               DNS Serve Stale                October 2018
    30 seconds not only sidesteps those potential problems with no
    practical negative consequence, it would also rate limit further
    queries from any client that is honoring the TTL, such as a
-   forwarding resolver.
+   forwarding resolver. [ NOTE: we're looking for further working group
+   feedback on this value. ]
 
    The maximum stale timer is used for cache management and is
    independent of the query resolution process.  This timer is
    conceptually different from the maximum cache TTL that exists in many
    resolvers, the latter being a clamp on the value of TTLs as received
    from authoritative servers.  The maximum stale timer SHOULD be
+
+
+
+Lawrence, et al.         Expires April 17, 2019                 [Page 8]
+
+Internet-Draft               DNS Serve Stale                October 2018
+
+
    configurable, and defines the length of time after a record expires
    that it SHOULD be retained in the cache.  The suggested value is 7
    days, which gives time to notice the resolution problem and for human
    intervention to fix it.
-
-
-
-
-Lawrence, et al.         Expires April 16, 2019                 [Page 8]
-
-Internet-Draft               DNS Serve Stale                October 2018
-
 
    This same basic technique MAY be used to handle stale data associated
    with delegations.  If authoritative server addresses are not able to
@@ -493,18 +498,17 @@ Internet-Draft               DNS Serve Stale                October 2018
    hostname changed from having an IPv4 Address (A) record to a CNAME.
    The version of BIND being used did not evict other types in the cache
    when a CNAME was received, which in normal operations is not a
-   significant issue.  However, after both records expired and the
-   authorities became unavailable, the fallback to stale answers
-   returned the older A instead of the newer CNAME.
 
 
 
-
-
-Lawrence, et al.         Expires April 16, 2019                 [Page 9]
+Lawrence, et al.         Expires April 17, 2019                 [Page 9]
 
 Internet-Draft               DNS Serve Stale                October 2018
 
+
+   significant issue.  However, after both records expired and the
+   authorities became unavailable, the fallback to stale answers
+   returned the older A instead of the newer CNAME.
 
    [ This probably applies to other occluding types, so more thought
    should be given to the overall issue. ]
@@ -546,7 +550,17 @@ Internet-Draft               DNS Serve Stale                October 2018
    answers by resolvers when authorities came under attack.  Their
    research results suggest that more widespread adoption of the
    technique would significantly improve resiliency for the large number
-   of requests that fail during an attack.
+   of requests that fail or experience abnormally long resolution times
+   during an attack.
+
+
+
+
+
+Lawrence, et al.         Expires April 17, 2019                [Page 10]
+
+Internet-Draft               DNS Serve Stale                October 2018
+
 
 10.  Security Considerations
 
@@ -554,14 +568,6 @@ Internet-Draft               DNS Serve Stale                October 2018
    validation failures when using stale data because signatures could be
    returned outside their validity period.  This would only be an issue
    if the authoritative servers are unreachable, the only time the
-
-
-
-Lawrence, et al.         Expires April 16, 2019                [Page 10]
-
-Internet-Draft               DNS Serve Stale                October 2018
-
-
    techniques in this document are used, and thus does not introduce a
    new failure in place of what would have otherwise been success.
 
@@ -587,7 +593,7 @@ Internet-Draft               DNS Serve Stale                October 2018
 
    The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy,
    and Jason Moreau for initial review.  Feedback from Robert Edmonds,
-   Davey Song, and Ralf Weber has also been incorporated.
+   Giovane Moura, Davey Song, and Ralf Weber has also been incorporated.
 
 15.  References
 
@@ -602,6 +608,16 @@ Internet-Draft               DNS Serve Stale                October 2018
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
 
+
+
+
+
+
+Lawrence, et al.         Expires April 17, 2019                [Page 11]
+
+Internet-Draft               DNS Serve Stale                October 2018
+
+
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
               <https://www.rfc-editor.org/info/rfc2181>.
@@ -610,13 +626,6 @@ Internet-Draft               DNS Serve Stale                October 2018
               for DNS (EDNS(0))", STD 75, RFC 6891,
               DOI 10.17487/RFC6891, April 2013, <https://www.rfc-
               editor.org/info/rfc6891>.
-
-
-
-Lawrence, et al.         Expires April 16, 2019                [Page 11]
-
-Internet-Draft               DNS Serve Stale                October 2018
-
 
 15.2.  Informative References
 
@@ -660,13 +669,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-Lawrence, et al.         Expires April 16, 2019                [Page 12]
+Lawrence, et al.         Expires April 17, 2019                [Page 12]
