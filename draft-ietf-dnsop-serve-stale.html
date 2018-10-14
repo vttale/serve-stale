@@ -403,8 +403,8 @@
   <meta name="dct.creator" content="Lawrence, D., Kumari, W., and P. Sood" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dnsop-serve-stale-02" />
   <meta name="dct.issued" scheme="ISO8601" content="2018-10-14" />
-  <meta name="dct.abstract" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data." />
-  <meta name="description" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data." />
+  <meta name="dct.abstract" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data.  It updates the definition of TTL from " />
+  <meta name="description" content="This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data.  It updates the definition of TTL from " />
 
 </head>
 
@@ -446,7 +446,7 @@
   <span class="filename">draft-ietf-dnsop-serve-stale-02</span></p>
   
   <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
-<p>This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data.</p>
+<p>This draft defines a method for recursive resolvers to use stale DNS data to avoid outages when authoritative nameservers cannot be reached to refresh expired data.  It updates the definition of TTL from <a href="#RFC1034" class="xref">[RFC1034]</a> and <a href="#RFC1035" class="xref">[RFC1035]</a> to make it clear that data can be kept in the cache beyond the TTL expiry and used for responses when a refreshed answer is not readily available.</p>
 <h1><a>Ed note</a></h1>
 <p>Text inside square brackets ([]) is additional background information, answers to frequently asked questions, general musings, etc.  They will be removed before publication.  This document is being collaborated on in GitHub at &lt;https://github.com/vttale/serve-stale&gt;.  The most recent version of the document, open issues, etc should all be available here.  The authors gratefully accept pull requests.</p>
 <h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
@@ -687,6 +687,11 @@
 <h1 id="rfc.references.1">
 <a href="#rfc.references.1">15.1.</a> Normative References</h1>
 <table><tbody>
+<tr>
+<td class="reference"><b id="RFC1034">[RFC1034]</b></td>
+<td class="top">
+<a>Mockapetris, P.</a>, "<a href="http://tools.ietf.org/html/rfc1034">Domain names - concepts and facilities</a>", STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987.</td>
+</tr>
 <tr>
 <td class="reference"><b id="RFC1035">[RFC1035]</b></td>
 <td class="top">

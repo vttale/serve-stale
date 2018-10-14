@@ -63,7 +63,10 @@ informative:
 
 This draft defines a method for recursive resolvers to use stale DNS
 data to avoid outages when authoritative nameservers cannot be reached
-to refresh expired data.
+to refresh expired data.  It updates the definition of TTL from
+{{!RFC1034}} and {{!RFC1035}} to make it clear that data can be kept
+in the cache beyond the TTL expiry and used for responses when a
+refreshed answer is not readily available.
 
 --- note_Ed_note
 

@@ -19,7 +19,10 @@ Abstract
 
    This draft defines a method for recursive resolvers to use stale DNS
    data to avoid outages when authoritative nameservers cannot be
-   reached to refresh expired data.
+   reached to refresh expired data.  It updates the definition of TTL
+   from [RFC1034] and [RFC1035] to make it clear that data can be kept
+   in the cache beyond the TTL expiry and used for responses when a
+   refreshed answer is not readily available.
 
 Ed note
 
@@ -509,6 +512,10 @@ Table of Contents
 15.  References
 
 15.1.  Normative References
+
+   [RFC1034]  Mockapetris, P., "Domain names - concepts and facilities",
+              STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987,
+              <https://www.rfc-editor.org/info/rfc1034>.
 
    [RFC1035]  Mockapetris, P., "Domain names - implementation and
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
