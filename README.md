@@ -8,8 +8,8 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                              Oracle + Dyn
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: April 17, 2019                                           Google
-                                                        October 14, 2018
+Expires: April 4, 2019                                            Google
+                                                            October 2018
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 17, 2019.
+   This Internet-Draft will expire on April 4, 2019.
 
 Copyright Notice
 
@@ -137,9 +137,9 @@ Table of Contents
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in
-   [RFC2119] when, and only when, they appear in all capitals, as shown
-   here.
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
 
    For a comprehensive treatment of DNS terms, please see [RFC7719].
 
@@ -148,9 +148,9 @@ Table of Contents
    There are a number of reasons why an authoritative server may become
    unreachable, including Denial of Service (DoS) attacks, network
    issues, and so on.  If the recursive server is unable to contact the
-   authoritative servers for a name but still has relevant data that has
-   aged past its TTL, that information can still be useful for
-   generating an answer under the metaphorical assumption that, "stale
+   authoritative servers for a query but still has relevant data that
+   has aged past its TTL, that information can still be useful for
+   generating an answer under the metaphorical assumption that "stale
    bread is better than no bread."
 
    [RFC1035] Section 3.2.1 says that the TTL "specifies the time
@@ -160,25 +160,25 @@ Table of Contents
    resource record may be cached before it should be discarded."
 
    A natural English interpretation of these remarks would seem to be
-   clear enough that records past their TTL expiration must not be used,
+   clear enough that records past their TTL expiration must not be used.
    However, [RFC1035] predates the more rigorous terminology of
    [RFC2119] which softened the interpretation of "may" and "should".
 
    [RFC2181] aimed to provide "the precise definition of the Time to
-   Live" but in Section 8 was mostly concerned with the numeric range of
-   values and the possibility that very large values should be capped.
-   (It also has the curious suggestion that a value in the range
-   2147483648 to 4294967295 should be treated as zero.)  It closes that
-   section by noting, "The TTL specifies a maximum time to live, not a
-   mandatory time to live."  This is again not [RFC2119]-normative
+   Live", but in Section 8 was mostly concerned with the numeric range
+   of values and the possibility that very large values should be
+   capped.  (It also has the curious suggestion that a value in the
+   range 2147483648 to 4294967295 should be treated as zero.)  It closes
+   that section by noting, "The TTL specifies a maximum time to live,
+   not a mandatory time to live."  This is again not [RFC2119]-normative
    language, but does convey the natural language connotation that data
    becomes unusable past TTL expiry.
 
    Several major recursive resolver operators currently use stale data
    for answers in some way, including Akamai (via both Nomimum and
-   Xerocole), Knot, OpenDNS, and Unbound.  Apple can also use stale data
-   as part of the Happy Eyeballs algorithms in mDNSResponder.  The
-   collective operational experience is that it provides significant
+   Xerocole), BIND, Knot, OpenDNS, and Unbound.  Apple can also use
+   stale data as part of the Happy Eyeballs algorithms in mDNSResponder.
+   The collective operational experience is that it provides significant
    benefit with minimal downside.
 
 5.  Standards Action
@@ -309,17 +309,19 @@ Table of Contents
       payload following OPTION-LENGTH, in octets.
 
    D Flag:  If set, the client explicitly does NOT want stale answers.
-      If clear, the client would like an indication of whether any data
-      in the response is stale.
+      If clear, the client is willing to receive stale answers.  The
+      presence or absence of stale data in the response will be
+      indicated by the S flag below.
 
    U Flag:  This indicates that the server understands the Serve-Stale
       EDNS option, and more information is communicated via the S flag.
       It exists to get around the issue of some authorative servers
-      simply echoing back ENDS options it does not understand.
+      simply echoing back ENDS options it does not understand.  The
+      client should set this field to 0.
 
    S Flag:  If set, this indicates that the response contains stale
       data.  If clear, no data in the response has reached its TTL
-      expiry.
+      expiry.  The client should set this field to 0.
 
    RESERVED:  Reserved for future use.  Should be set to zero on send
       and ignored on receipt.
@@ -500,8 +502,9 @@ Table of Contents
 
 13.  IANA Considerations
 
-   This document contains no actions for IANA.  This section will be
-   removed during conversion into an RFC by the RFC editor.
+   IANA is requested to assign an EDNS Option Code (as described in
+   Section 9 of [RFC6891]) for the serve-stale option specified in this
+   document.
 
 14.  Acknowledgements
 
@@ -534,6 +537,10 @@ Table of Contents
               for DNS (EDNS(0))", STD 75, RFC 6891,
               DOI 10.17487/RFC6891, April 2013, <https://www.rfc-
               editor.org/info/rfc6891>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
 15.2.  Informative References
 
