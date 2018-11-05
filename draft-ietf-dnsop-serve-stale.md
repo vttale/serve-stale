@@ -129,8 +129,8 @@ recursive resolvers.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in
-{{!RFC2119}} when, and only when, they appear in all capitals, as shown
-here.
+BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+capitals, as shown here.
 
 For a comprehensive treatment of DNS terms, please see {{?RFC7719}}.
 
@@ -139,9 +139,9 @@ For a comprehensive treatment of DNS terms, please see {{?RFC7719}}.
 There are a number of reasons why an authoritative server may become
 unreachable, including Denial of Service (DoS) attacks, network
 issues, and so on.  If the recursive server is unable to contact the
-authoritative servers for a name but still has relevant data that has
+authoritative servers for a query but still has relevant data that has
 aged past its TTL, that information can still be useful for generating
-an answer under the metaphorical assumption that, "stale bread is
+an answer under the metaphorical assumption that "stale bread is
 better than no bread."
 
 {{!RFC1035}} Section 3.2.1 says that the TTL "specifies the time
@@ -151,12 +151,12 @@ says the TTL, "specifies the time interval (in seconds) that the
 resource record may be cached before it should be discarded."
 
 A natural English interpretation of these remarks would seem to be
-clear enough that records past their TTL expiration must not be used,
+clear enough that records past their TTL expiration must not be used.
 However, {{RFC1035}} predates the more rigorous terminology of
 {{RFC2119}} which softened the interpretation of "may" and "should".
 
 {{RFC2181}} aimed to provide "the precise definition of the Time to
-Live" but in Section 8 was mostly concerned with the numeric range of
+Live", but in Section 8 was mostly concerned with the numeric range of
 values and the possibility that very large values should be capped. (It
 also has the curious suggestion that a value in the range 2147483648
 to 4294967295 should be treated as zero.)  It closes that section by
@@ -167,8 +167,8 @@ unusable past TTL expiry.
 
 Several major recursive resolver operators currently use stale data
 for answers in some way, including Akamai (via both Nomimum and
-Xerocole), Knot, OpenDNS, and Unbound.  Apple can also use stale data
-as part of the Happy Eyeballs algorithms in mDNSResponder.  The
+Xerocole), BIND, Knot, OpenDNS, and Unbound.  Apple can also use stale
+data as part of the Happy Eyeballs algorithms in mDNSResponder.  The
 collective operational experience is that it provides significant
 benefit with minimal downside.
 
@@ -178,7 +178,6 @@ The definition of TTL in {{RFC1035}} Sections 3.2.1 and 4.1.3 is
 amended to read:
 
 TTL
-
 : a 32 bit unsigned integer number of seconds in the range 0 -
 2147483647 that specifies the time interval that the resource record
 MAY be cached before the source of the information MUST again be
@@ -307,19 +306,21 @@ OPTION-LENGTH:
       payload following OPTION-LENGTH, in octets.
 
 D Flag:
-: If set, the client explicitly does NOT want stale answers. If clear,
-the client would like an indication of whether any data in the
-response is stale.
+: If set, the client explicitly does NOT want stale answers.  If clear,
+the client is willing to receive stale answers.  The presence or absence
+of stale data in the response will be indicated by the S flag below.
 
 U Flag:
 : This indicates that the server understands the Serve-Stale EDNS option,
 and more information is communicated via the S flag.  It exists to get
 around the issue of some authorative servers simply echoing back
-ENDS options it does not understand.
+ENDS options it does not understand.  The client should set this field
+to 0.
 
 S Flag:
 : If set, this indicates that the response contains stale data.  If
-clear, no data in the response has reached its TTL expiry.
+clear, no data in the response has reached its TTL expiry.  The client
+should set this field to 0.
 
 RESERVED:
 : Reserved for future use. Should be set to zero on send and ignored
@@ -500,8 +501,9 @@ The method described here is not affected by the use of NAT devices.
 
 # IANA Considerations
 
-This document contains no actions for IANA.  This section will be
-removed during conversion into an RFC by the RFC editor.
+IANA is requested to assign an EDNS Option Code (as described in
+Section 9 of [RFC6891]) for the serve-stale option specified in this
+document.
 
 # Acknowledgements
 
