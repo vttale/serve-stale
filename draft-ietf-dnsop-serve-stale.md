@@ -26,7 +26,7 @@ author:
 
   -
     ins: W. Kumari
-    name: Warren Kumari
+    name: Warren "Ace" Kumari
     org: Google
     street: 1600 Amphitheatre Parkway
     city: Mountain View
@@ -96,10 +96,7 @@ server unavailability can cause outages even when the underlying data
 those servers would return is typically unchanged.
 
 We describe a method below for this use of stale data, balancing the
-competing needs of resiliency and freshness.  While this is intended
-to be immediately useful to the installed base of DNS software, we
-also propose an {{RFC6891}} EDNS option for enhanced signalling around
-the use of stale data by implementations that understand it.
+competing needs of resiliency and freshness. 
 
 # Notes to readers
 
@@ -112,17 +109,6 @@ and we lost focus.  We are now reviving it, and are trying to address
 and incorporate comments.  There has also been more deployment and
 implementation recently, and so this document is now more describing
 what is known to work instead of simply proposing a concept.
-
-Open questions:
-
-* The EDNS option that we propose for debugging is relatively
-full-featured to identify which RRsets are stale.  It could be
-simplified to just indicate that an answer is stale, or even removed
-entirely in favour of an Extended Error result that indicates
-staleness.
-
-* What TTL value to recommend be set in stale answers returned by
-recursive resolvers.
 
 # Terminology
 
@@ -194,137 +180,7 @@ could use this opportunity to recommend a much more sane maximum value
 like 604800 seconds, one week, instead of the literal maximum of 68
 years. \]
 
-# EDNS Option
 
-While the basic behaviour of this answer-of-last-resort can be
-achieved with changes only to resolvers, explicit signalling about the
-use of stale data can be done with an EDNS {{!RFC6891}} option.  This
-option can be included from a stub or forwarding resolver to a
-recursive resolver, explicitly signalling that it does not want stale
-answers, or for learning that stale data was in use.  It is expected
-that this could be useful for debugging.
-
-\[ NOTE: This section will be fleshed out a bit more thoroughly if
-there is interest in pursuing the option. Here are two potential
-options that could be used, one more fully-featured to indicate which
-RRsets are stale and one much more simple to indicate that stale data
-is present. These are proposed as mutually exclusive; the final
-document will have one or zero such options.  We're especially
-soliciting feedback on this from the working group. \]
-
-## Option Format Proposal 1
-
-The option is structured as follows:
-
-
-                  +0 (MSB)                        +1 (LSB)
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    0: |                         OPTION-CODE                       |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    2: |                        OPTION-LENGTH                      |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    4: |                     STALE-RRSET-INDEX 1                   |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    6: |                                                           |
-    8: |                         TTL-EXPIRY 1                      |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-       :  ... additional STALE-RRSET-INDEX / TTL-EXPIRY pairs ...  :
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-
-OPTION-CODE:
-: 2 octets per {{!RFC6891}}.  For Serve-Stale the code is TBD by IANA.
-
-OPTION-LENGTH:
-: 2 octets per {{!RFC6891}}.  Contains the length of the payload
-following OPTION-LENGTH, in octets.
-
-STALE-RRSET-INDEX:
-: Two octets as a signed integer, indicating the first RRSet in the
-message which is beyond its TTL, with RRSet counting starting at 1 and
-spanning message sections.
-
-TTL-EXPIRY:
-: Four octets as an unsigned integer, representing the number of
-seconds that have passed since the TTL for the RRset expired.
-
-## Option Usage
-
-Software making a DNS request can signal that it understands
-Serve-Stale by including the option with one STALE-RRSET-INDEX
-initialized to any negative value and TTY-EXPIRY initialized to 0.
-The index is set to a negative value to detect mere reflection of the
-option by responders that don't really understand it.
-
-If the request is made to a recursive resolver which used any stale
-RRsets in its reply, it then fills in the corresponding indices and
-staleness values.  If no records are stale, STALE-RRSET-INDEX and
-TTL-EXPIRY are set to 0.
-
-If the request is made to an authoritative nameserver, it can use the
-option in the reply to indicate how the resolver should treat the
-records in the reply if they are unable to be refreshed later.  A
-default for all RRsets in the message is established by setting the
-first STALE-RRSET-INDEX to 0, with optional additional
-STALE-RRSET-INDEX values overriding the default.  A TTL-EXPIRY value
-of 0 means to never serve the RRset as stale, while non-zero values
-represent the maximum amount of time it can be used before it MUST be
-evicted.  \[ Does anyone really want to do this?  It adds more state
-into resolvers. Is the idea only for purists, or is there a practical
-application? \]
-
-No facility is made for a client of a resolver to signal that it
-doesn't want stale answers, because if a client has knowledge of
-Serve-Stale as an option, it also has enough knowledge to just ignore
-any records that come back stale.  \[ There is admittedly the issue
-that the client might just want to wait out the whole attempted
-resolution, which there's currently no way to indicate.  The absolute
-value of STALE-RRSET-INDEX could be taken as a timer the requester is
-willing to wait for an answer, but that's kind of gross overloading it
-like that. Shame to burn another field on that, but on the other
-hand it might also be nice if a client could always signal its
-impatience level -- "I must have an answer within 900 milliseconds!" ]
-
-## Option Format Proposal 2
-
-The option is structured as follows:
-
-
-                 +0 (MSB)                        +1 (LSB)
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    0: |                         OPTION-CODE                       |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    2: |                        OPTION-LENGTH                      |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-    4: | D | U | S |             RESERVED                          |
-       +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-
-OPTION-CODE:
-: 2 octets per [RFC6891].  For Serve-Stale the code is TBD by IANA.
-
-OPTION-LENGTH:
-:  2 octets per [RFC6891].  Contains the length of the
-      payload following OPTION-LENGTH, in octets.
-
-D Flag:
-: If set, the client explicitly does NOT want stale answers.  If clear,
-the client is willing to receive stale answers.  The presence or absence
-of stale data in the response will be indicated by the S flag below.
-
-U Flag:
-: This indicates that the server understands the Serve-Stale EDNS option,
-and more information is communicated via the S flag.  It exists to get
-around the issue of some authorative servers simply echoing back
-ENDS options it does not understand.  The client should set this field
-to 0.
-
-S Flag:
-: If set, this indicates that the response contains stale data.  If
-clear, no data in the response has reached its TTL expiry.  The client
-should set this field to 0.
-
-RESERVED:
-: Reserved for future use. Should be set to zero on send and ignored
-on receipt.
 
 # Example Method
 
@@ -375,8 +231,7 @@ congestive collapse as TTL-respecting clients rapidly try to refresh.
 30 seconds not only sidesteps those potential problems with no
 practical negative consequence, it would also rate limit further
 queries from any client that is honoring the TTL, such as a forwarding
-resolver. \[ NOTE: we're looking for further working group feedback on
-this value. \]
+resolver. 
 
 The maximum stale timer is used for cache management and is
 independent of the query resolution process. This timer is
@@ -435,16 +290,24 @@ issue.  However, after both records expired and the authorities became
 unavailable, the fallback to stale answers returned the older A
 instead of the newer CNAME.
 
-\[ This probably applies to other occluding types, so more thought
-should be given to the overall issue. \]
-
 Keeping records around after their normal expiration will of course
 cause caches to grow larger than if records were removed at their TTL.
 Specific guidance on managing cache sizes is outside the scope of this
-document.  Some areas for consideration include whether to track the
-popularity of names in client requests versus evicting by maximum age,
-and whether to provide a feature for manually flushing only stale
-records.
+document.  
+
+## Implementation considerations
+
+This document mainly describes the method / concept behind serving stale data, and intentionally does not provide a formal algorithm. The concept is not overly complex, and we believe that it would be hubris to believe that we know better than resolver authors how exactly to implement the concept in their code-base. The processing of serve-stale is a local operation, and consitent variables between implementations (or instances) is not needed for interoperability. 
+
+However, we would like to highlight the impact of various knobs / variables [Ed: .. and the WG asked for this :-)]
+
+The most obvious of these is the "maximum stale timer". If this variable is too large, it could cause excessive cache memory utilization. This could be mitigated by prioritizing removal of these record over non-expired records during cache exhaustion. Implmentations may wish to consider whether to track the popularity of names in client requests versus simply tracking age, and whether to provide a feature for manually flushing only stale records. If this variable is too small, the serve-stale technique becomes less effective, as the record may not be in the cache to be used if needed. One nice property is that more popular names are, by definition, queried more often than unpopular names - this means that resetting a timer each time a name is used can automatically prioritize popular names over unpopular ones. 
+
+The "client response timer" is another variable which deserves consideration. If this value is too short, there exists the risk that stale answers may be used even when the authoritative server is actually reachable but slow; this may result in suboptimal answers being returned. Conversely, waiting too long will negatively impact the user response. 
+
+Many resolvers implement prefetching of answers before the TTL has expired. If this has been attempted recently, and the authorative servers were determined to be not reachable at this time, the check can be skipped - the authors recommend that this value be the same as the check interval (see below). 
+
+Another variable is how often to re-check if the authoritative server is available once it has initially been determined to be unreachable. If this variable is set too large, stale answers may continue to be returned even after the authoritative server is reachable. One of the motivations for serve-stale is to make the DNS more resilient to DOS attacks (and thereby make them less attractive as an attack vector). If the serve-stale technique becomes widely deployed, and this variable is too small, authoritative servers may be hit with a significant amount of traffic when they become reachable again. For this reason, the authors strongly recommend that this value not be set lower than 30 seconds. 
 
 # Implementation Status
 
@@ -507,8 +370,6 @@ document.
 
 # Acknowledgements
 
-The authors wish to thank Matti Klock, Mukund Sivaraman, Jean Roy, and
-Jason Moreau for initial review.  Feedback from Robert Edmonds,
-Giovane Moura, Davey Song, and Ralf Weber has also been incorporated.
+The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold, Matti Klock, Jason Moreau, Giovane Moura,  Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters for their review and feedback.
 
 --- back
