@@ -223,12 +223,12 @@ and is commonly around 10 to 30 seconds.
 If the answer has not been completely determined by the time the
 client response timer has elapsed, the resolver SHOULD then check its
 cache to see whether there is expired data that would satisfy the
-request.  If so, it adds that data to the response message and SHOULD
-set the TTL of each expired record in the message to 30 seconds.  The
-response is then sent to the client while the resolver continues its
-attempt to refresh the data.  30 second was chosen because
-historically 0 second TTLs have been problematic for some
-implementations, and similarly very short TTLs could lead to
+request.  If so, it adds that data to the response message; it MUST 
+set the TTL of each expired record in the message to >0 (30 seconds 
+is RECOMMENDED). The response is then sent to the client while the 
+resolver continues its attempt to refresh the data.  30 second was 
+chosen because, historically, 0 second TTLs have been problematic for 
+some implementations, and similarly very short TTLs could lead to
 congestive collapse as TTL-respecting clients rapidly try to refresh.
 30 seconds not only sidesteps those potential problems with no
 practical negative consequence, it would also rate limit further
