@@ -67,7 +67,9 @@ data to avoid outages when authoritative nameservers cannot be reached
 to refresh expired data.  It updates the definition of TTL from
 {{!RFC1034}} and {{!RFC1035}} to make it clear that data can be kept
 in the cache beyond the TTL expiry and used for responses when a
-refreshed answer is not readily available.
+refreshed answer is not readily available. One of the motivations for
+serve-stale is to make the DNS more resilient to DOS attacks (and
+thereby make them less attractive as an attack vector).
 
 --- note_Ed_note
 
@@ -297,25 +299,24 @@ document.
 
 ## Implementation considerations
 
-This document mainly describes the method / concept behind serving stale data, and intentionally does not provide a formal algorithm. The concept is not overly complex, and we believe that it would be hubris to believe that we know better than resolver authors how exactly to implement the concept in their code-base. The processing of serve-stale is a local operation, and consitent variables between implementations (or instances) is not needed for interoperability. 
+This document mainly describes the method / concept behind serving stale data, and intentionally does not provide a formal algorithm. The concept is not overly complex, and the details are best left to resolver authors to implement the concept in their code-base. The processing of serve-stale is a local operation, and consitent variables between implementations (or instances) are not needed for interoperability.
 
 However, we would like to highlight the impact of various knobs / variables [Ed: .. and the WG asked for this :-)]
 
-The most obvious of these is the "maximum stale timer". If this variable is too large, it could cause excessive cache memory utilization. This could be mitigated by prioritizing removal of these record over non-expired records during cache exhaustion. Implmentations may wish to consider whether to track the popularity of names in client requests versus simply tracking age, and whether to provide a feature for manually flushing only stale records. If this variable is too small, the serve-stale technique becomes less effective, as the record may not be in the cache to be used if needed. One nice property is that more popular names are, by definition, queried more often than unpopular names - this means that resetting a timer each time a name is used can automatically prioritize popular names over unpopular ones. 
+The most obvious of these is the "maximum stale timer". If this variable is too large, it could cause excessive cache memory utilization. This could be mitigated by prioritizing removal of stale records over non-expired records during cache exhaustion. Implmentations may wish to consider whether to track the popularity of names in client requests versus simply tracking age, and whether to provide a feature for manually flushing only stale records. If this variable is too small, the serve-stale technique becomes less effective, as the record may not be in the cache to be used if needed. One nice property is that more popular names are, by definition, queried more often than unpopular names - this means that resetting a timer each time a name is used can automatically prioritize popular names over unpopular ones. [Puneet: I understand the timer in the last sentence as really a timestamp to allow eviction of stale records in order of age. Reword? ]
 
 The "client response timer" is another variable which deserves consideration. If this value is too short, there exists the risk that stale answers may be used even when the authoritative server is actually reachable but slow; this may result in suboptimal answers being returned. Conversely, waiting too long will negatively impact the user response. 
 
-Many resolvers implement prefetching of answers before the TTL has expired. If this has been attempted recently, and the authorative servers were determined to be not reachable at this time, the check can be skipped - the authors recommend that this value be the same as the check interval (see below). 
+Many resolvers implement prefetching of answers before the TTL has expired. If this has been attempted recently, and the authorative servers were determined to be not reachable at this time, the check can be skipped - the authors recommend that this value be the same as the check interval (see below).
 
-Another variable is how often to re-check if the authoritative server is available once it has initially been determined to be unreachable. If this variable is set too large, stale answers may continue to be returned even after the authoritative server is reachable. One of the motivations for serve-stale is to make the DNS more resilient to DOS attacks (and thereby make them less attractive as an attack vector). If the serve-stale technique becomes widely deployed, and this variable is too small, authoritative servers may be hit with a significant amount of traffic when they become reachable again. For this reason, the authors strongly recommend that this value not be set lower than 30 seconds. 
+Another variable is how often to re-check if the authoritative server is available once it has been determined to be unreachable. If this variable is set too large, stale answers may continue to be returned even after the authoritative server is reachable. If the serve-stale technique becomes widely deployed, and this variable is too small, authoritative servers may be hit with a significant amount of traffic when they become reachable again. For this reason, the authors strongly recommend that this value not be set lower than 30 seconds. 
 
 # Implementation Status
 
 \[RFC Editor: per RFC 6982 this section should be removed prior to
 publication.\]
 
-The algorithm described in the {{example-method}} section was
-originally implemented as a patch to BIND 9.7.0.  It has been in
+The algorithm described in the {{example-method}} section was originally implemented as a patch to BIND 9.7.0.  It has been in
 production on Akamai's production network since 2011, and effectively
 smoothed over transient failures and longer outages that would have
 resulted in major incidents.  The patch was contributed to Internet
@@ -328,17 +329,17 @@ before trying to refresh expired records. This is unfortunately not
 faithful to the ideal that data past expiry should attempt to be
 refreshed before being served.
 
-Knot Resolver has an demo module here:
+Knot Resolver has a demo module here:
 https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
 Details of Apple's implementation are not currently known.
 
 In the research paper "When the Dike Breaks: Dissecting DNS Defenses
-During DDoS" {{DikeBreaks}}, the authors detected some use of stale answers by
-resolvers when authorities came under attack.  Their research results
-suggest that more widespread adoption of the technique would
-significantly improve resiliency for the large number of requests that
-fail or experience abnormally long resolution times during an attack.
+During DDoS" {{DikeBreaks}}, the paper's authors detected some use of
+stale answers by resolvers when authorities came under attack.  Their
+research results suggest that more widespread adoption of the technique
+would significantly improve resiliency for the large number of requests
+that fail or experience abnormally long resolution times during an attack.
 
 # Security Considerations
 
