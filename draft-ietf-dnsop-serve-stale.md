@@ -219,7 +219,7 @@ timeouts.  It SHOULD be configurable, with a recommended value of 1.8
 seconds as being just under a common timeout value of 2 seconds while
 still giving the resolver a fair shot at resolving the name.
 
-The resolver then checks its cache for an unexpired data that
+The resolver then checks its cache for any unexpired data that
 satisfies the request and of course returns them if available.  If it
 finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it SHOULD immediately return the response without
