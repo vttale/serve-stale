@@ -8,12 +8,12 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: April 4, 2019                                            Google
-                                                            October 2018
+Expires: August 27, 2019                                          Google
+                                                       February 23, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-02
+                    draft-ietf-dnsop-serve-stale-03
 
 Abstract
 
@@ -23,7 +23,7 @@ Abstract
    from [RFC1034], [RFC1035], and [RFC2181] to make it clear that data
    can be kept in the cache beyond the TTL expiry and used for responses
    when a refreshed answer is not readily available.  One of the
-   motivations for serve-stale is to make the DNS more resilient to DOS
+   motivations for serve-stale is to make the DNS more resilient to DoS
    attacks, and thereby make them less attractive as an attack vector.
 
 Ed note
@@ -44,23 +44,23 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 4, 2019.
+   This Internet-Draft will expire on August 27, 2019.
 
 Copyright Notice
 
-   Copyright (c) 2018 IETF Trust and the persons identified as the
+   Copyright (c) 2019 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -213,7 +213,7 @@ Table of Contents
    not set in the request, it SHOULD immediately return the response
    without consulting the cache for expired records.
 
-   If iterative lookups will be done then the resolution recheck timer
+   If iterative lookups will be, done then the resolution recheck timer
    is consulted.  Attempts to refresh from the authorities are
    recommended to be done no more frequently than every 30 seconds.  If
    this request was received within this period, the cache may be
@@ -257,16 +257,16 @@ Table of Contents
    into one that is non-existent, because there is no way for a resolver
    to know intent.
 
-   Stale data is used only when refreshing has failed in order to adhere
-   to the original intent of the design of the DNS and the behaviour
-   expected by operators.  If stale data were to always be used
-   immediately and then a cache refresh attempted after the client
+   Stale data is used only when refreshing has failed, in order to
+   adhere to the original intent of the design of the DNS and the
+   behaviour expected by operators.  If stale data were to always be
+   used immediately and then a cache refresh attempted after the client
    response has been sent, the resolver would frequently be sending data
    that it would have had no trouble refreshing.  As modern resolvers
    use techniques like pre-fetching and request coalescing for
    efficiency, it is not necessary that every client request needs to
    trigger a new lookup flow in the presence of stale data, but rather
-   than a good-faith effort have been recently made to refresh the stale
+   that a good-faith effort has been recently made to refresh the stale
    data before it is delivered to any client.  The recommended period
    between attempting refreshes is 30 seconds.
 
@@ -319,7 +319,7 @@ Table of Contents
 
    The balance for the resolution recheck timer is responsiveness in
    detecting the renewed availability of authorities versus the extra
-   resource use of resolution.If this variable is set too large, stale
+   resource use of resolution.  If this variable is set too large, stale
    answers may continue to be returned even after the authoritative
    server is reachable.  If this variable is too small, authoritative
    servers may be rapidly hit with a significant amount of traffic when
@@ -390,7 +390,7 @@ Table of Contents
 
    The reporting case was ultimately also rejected as working group
    participants determined that even the simpler version of a proposed
-   option was still too much bother to implement for two little
+   option was still too much bother to implement for too little
    perceived value.
 
 9.  Security Considerations
@@ -451,8 +451,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -470,8 +470,8 @@ Table of Contents
               Domain-Validated Certificates", ACM 2018 Applied
               Networking Research Workshop, DOI 10.1145/3232755.3232859,
               July 2018, <https://www.ndss-symposium.org/wp-
-              content/uploads/2018/02/ndss2018_06A-
-              4_Borgolte_paper.pdf>.
+              content/uploads/2018/02/
+              ndss2018_06A-4_Borgolte_paper.pdf>.
 
    [DikeBreaks]
               Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.

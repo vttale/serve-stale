@@ -1,8 +1,8 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-ietf-dnsop-serve-stale-02
-date: 2018-10
+docname: draft-ietf-dnsop-serve-stale-03
+date: 2019-02-23 
 
 ipr: trust200902
 area: Internet
@@ -86,7 +86,7 @@ to refresh expired data.  It updates the definition of TTL from
 {{!RFC1034}}, {{!RFC1035}}, and {{!RFC2181}} to make it clear that
 data can be kept in the cache beyond the TTL expiry and used for
 responses when a refreshed answer is not readily available. One of the
-motivations for serve-stale is to make the DNS more resilient to DOS
+motivations for serve-stale is to make the DNS more resilient to DoS
 attacks, and thereby make them less attractive as an attack vector.
 
 --- note_Ed_note
@@ -225,7 +225,7 @@ finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it SHOULD immediately return the response without
 consulting the cache for expired records.
 
-If iterative lookups will be done then the resolution recheck timer
+If iterative lookups will be, done then the resolution recheck timer
 is consulted.  Attempts to refresh from the authorities are
 recommended to be done no more frequently than every 30 seconds.  If
 this request was received within this period, the cache may be
@@ -269,7 +269,7 @@ authoritative server that turns a name that is intended to be valid
 into one that is non-existent, because there is no way for a resolver
 to know intent.  
 
-Stale data is used only when refreshing has failed in order to adhere
+Stale data is used only when refreshing has failed, in order to adhere
 to the original intent of the design of the DNS and the behaviour
 expected by operators.  If stale data were to always be used
 immediately and then a cache refresh attempted after the client
@@ -277,8 +277,8 @@ response has been sent, the resolver would frequently be sending data
 that it would have had no trouble refreshing.  As modern resolvers use
 techniques like pre-fetching and request coalescing for efficiency, it
 is not necessary that every client request needs to trigger a new
-lookup flow in the presence of stale data, but rather than a
-good-faith effort have been recently made to refresh the stale data
+lookup flow in the presence of stale data, but rather that a
+good-faith effort has been recently made to refresh the stale data
 before it is delivered to any client.  The recommended period between
 attempting refreshes is 30 seconds.
 
@@ -330,7 +330,7 @@ user experience.
 
 The balance for the resolution recheck timer is responsiveness in
 detecting the renewed availability of authorities versus the extra
-resource use of resolution.If this variable is set too large, stale
+resource use of resolution. If this variable is set too large, stale
 answers may continue to be returned even after the authoritative
 server is reachable. If this variable is too small, authoritative
 servers may be rapidly hit with a significant amount of traffic when
@@ -400,7 +400,7 @@ immediately useful in improving DNS resiliency for all clients.
 
 The reporting case was ultimately also rejected as working group
 participants determined that even the simpler version of a proposed
-option was still too much bother to implement for two little perceived
+option was still too much bother to implement for too little perceived
 value.
 
 # Security Considerations
