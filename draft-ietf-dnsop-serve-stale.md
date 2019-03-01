@@ -225,7 +225,7 @@ finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it SHOULD immediately return the response without
 consulting the cache for expired records.
 
-If iterative lookups will be, done then the resolution recheck timer
+If iterative lookups will be done, then the resolution recheck timer
 is consulted.  Attempts to refresh from the authorities are
 recommended to be done no more frequently than every 30 seconds.  If
 this request was received within this period, the cache may be
