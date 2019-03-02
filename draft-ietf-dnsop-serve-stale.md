@@ -202,14 +202,14 @@ request and sending its response.
 * A query resolution timer, which caps the total amount of time a
 recursive resolver spends processing the query.
 
-* A resolution recheck timer, which limits the frequency at which a
+* A failure recheck timer, which limits the frequency at which a
 failed lookup will be attempted.
 
 * A maximum stale timer, which caps the amount of time
 that records will be kept past their expiration.
 
 Most recursive resolvers already have the query resolution timer, and
-effectively some kind of resolution recheck timer.  The client
+effectively some kind of failure recheck timer.  The client
 response timer and maximum stale timer are new concepts for this
 mechanism.
 
@@ -225,13 +225,14 @@ finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it SHOULD immediately return the response without
 consulting the cache for expired records.
 
-If iterative lookups will be done, then the resolution recheck timer
-is consulted.  Attempts to refresh from the authorities are
-recommended to be done no more frequently than every 30 seconds.  If
-this request was received within this period, the cache may be
-immediately consulted for stale data to satisfy the request.
+If iterative lookups will be done, then the failure recheck timer is
+consulted.  Attempts to refresh from non-responsive or SERVFAILing
+authoritative nameservers are recommended to be done no more
+frequently than every 30 seconds.  If this request was received within
+this period, the cache may be immediately consulted for stale data to
+satisfy the request.
 
-Outside the period of the resolution recheck timer, the resolver
+Outside the period of the failure recheck timer, the resolver
 SHOULD start the query resolution timer and begin the iterative
 resolution process.  This timer bounds the work done by the resolver
 when contacting external authorities, and is commonly around 10 to 30
@@ -258,6 +259,65 @@ SHOULD be configurable, and defines the length of time after a record
 expires that it SHOULD be retained in the cache.  The suggested value
 is 7 days, which gives time for monitoring to notice the resolution
 problem and for human intervention to fix it.
+
+# Implementation Considerations
+
+This document mainly describes the issues behind serving stale data
+and intentionally does not provide a formal algorithm. The concept is
+not overly complex, and the details are best left to resolver authors
+to implement in their codebases. The processing of serve-stale is a
+local operation, and consistent variables between deployments are not
+needed for interoperability.  However, we would like to highlight the
+impact of various variables.
+
+The most obvious of these is the maximum stale timer. If this variable
+is too large it could cause excessive cache memory usage, but if it is
+too small, the serve-stale technique becomes less effective, as the
+record may not be in the cache to be used if needed.  Memory
+consumption could be mitigated by prioritizing removal of stale
+records over non-expired records during cache exhaustion.
+Implementations may also wish to consider whether to track the names
+in requests for their last time of use or their popularity, using that
+as an additional factor when considering cache eviction.  A feature to
+manually flush only stale records could also be useful.
+
+The client response timer is another variable which deserves
+consideration. If this value is too short, there exists the risk that
+stale answers may be used even when the authoritative server is
+actually reachable but slow; this may result in sub-optimal answers
+being returned. Conversely, waiting too long will negatively impact
+user experience.
+
+The balance for the failure recheck timer is responsiveness in
+detecting the renewed availability of authorities versus the extra
+resource use of resolution. If this variable is set too large, stale
+answers may continue to be returned even after the authoritative
+server is reachable; per {{!RFC2308}}, Section 7, this should be no
+more than five minutes.  If this variable is too small, authoritative
+servers may be rapidly hit with a significant amount of traffic when
+they become reachable again.
+
+Regarding the TTL to set on stale records in the response,
+historically TTLs of zero seconds have been problematic for some
+implementations, and negative values can't effectively be communicated
+to existing software.  Other very short TTLs could lead to congestive
+collapse as TTL-respecting clients rapidly try to refresh.  The
+recommended 30 seconds not only sidesteps those potential problems
+with no practical negative consequences, it also rate limits
+further queries from any client that honors the TTL, such as a
+forwarding resolver.
+
+Apart from timers, one more implementation consideration is the use of
+stale nameserver addresses for lookups.  This is mentioned explicitly
+because, in some resolvers, getting the addresses for nameservers is
+a separate path from a normal cache lookup. If authoritative server
+addresses are not able to be refreshed, resolution can possibly still
+be successful if the authoritative servers themselves are up.  For
+instance, consider an attack on a toplevel domain that takes its
+nameservers offline; serve-stale resolvers that had expired glue
+addresses for subdomains within that TLD would still be able to
+resolve names within those subdomains, even those it had not
+previously looked up.
 
 # Implementation Caveats
 
@@ -299,64 +359,6 @@ a CNAME was received, which in normal operations is not a significant
 issue.  However, after both records expired and the authorities became
 unavailable, the fallback to stale answers returned the older A
 instead of the newer CNAME.
-
-## Implementation Considerations
-
-This document mainly describes the issues behind serving stale data
-and intentionally does not provide a formal algorithm. The concept is
-not overly complex, and the details are best left to resolver authors
-to implement in their codebases. The processing of serve-stale is a
-local operation, and consistent variables between deployments are not
-needed for interoperability.  However, we would like to highlight the
-impact of various variables.
-
-The most obvious of these is the maximum stale timer. If this variable
-is too large it could cause excessive cache memory usage, but if it is
-too small, the serve-stale technique becomes less effective, as the
-record may not be in the cache to be used if needed.  Memory
-consumption could be mitigated by prioritizing removal of stale
-records over non-expired records during cache exhaustion.
-Implementations may also wish to consider whether to track the names
-in requests for their last time of use or their popularity, using that
-as an additional factor when considering cache eviction.  A feature to
-manually flush only stale records could also be useful.
-
-The client response timer is another variable which deserves
-consideration. If this value is too short, there exists the risk that
-stale answers may be used even when the authoritative server is
-actually reachable but slow; this may result in sub-optimal answers
-being returned. Conversely, waiting too long will negatively impact
-user experience.
-
-The balance for the resolution recheck timer is responsiveness in
-detecting the renewed availability of authorities versus the extra
-resource use of resolution. If this variable is set too large, stale
-answers may continue to be returned even after the authoritative
-server is reachable. If this variable is too small, authoritative
-servers may be rapidly hit with a significant amount of traffic when
-they become reachable again.
-
-Regarding the TTL to set on stale records in the response,
-historically TTLs of zero seconds have been problematic for some
-implementations, and negative values can't effectively be communicated
-to existing software.  Other very short TTLs could lead to congestive
-collapse as TTL-respecting clients rapidly try to refresh.  The
-recommended 30 seconds not only sidesteps those potential problems
-with no practical negative consequences, it also rate limits
-further queries from any client that honors the TTL, such as a
-forwarding resolver.
-
-Apart from timers, one more implementation consideration is the use of
-stale nameserver addresses for lookups.  This is mentioned explicitly
-because, in some resolvers, getting the addresses for nameservers is
-a separate path from a normal cache lookup. If authoritative server
-addresses are not able to be refreshed, resolution can possibly still
-be successful if the authoritative servers themselves are up.  For
-instance, consider an attack on a toplevel domain that takes its
-nameservers offline; serve-stale resolvers that had expired glue
-addresses for subdomains within that TLD would still be able to
-resolve names within those subdomains, even those it had not
-previously looked up.
 
 # Implementation Status
 

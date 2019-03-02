@@ -42,7 +42,7 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at https://datatracker.ietf.org/drafts/current/.
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
@@ -65,7 +65,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -80,18 +80,18 @@ Table of Contents
    3.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   3
    4.  Standards Action  . . . . . . . . . . . . . . . . . . . . . .   4
    5.  Example Method  . . . . . . . . . . . . . . . . . . . . . . .   4
-   6.  Implementation Caveats  . . . . . . . . . . . . . . . . . . .   6
-     6.1.  Implementation Considerations . . . . . . . . . . . . . .   7
-   7.  Implementation Status . . . . . . . . . . . . . . . . . . . .   8
-   8.  EDNS Option . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .   9
-   10. Privacy Considerations  . . . . . . . . . . . . . . . . . . .   9
-   11. NAT Considerations  . . . . . . . . . . . . . . . . . . . . .   9
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  10
-   13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  10
-   14. References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
-     14.1.  Normative References . . . . . . . . . . . . . . . . . .  10
-     14.2.  Informative References . . . . . . . . . . . . . . . . .  10
+   6.  Implementation Considerations . . . . . . . . . . . . . . . .   6
+   7.  Implementation Caveats  . . . . . . . . . . . . . . . . . . .   7
+   8.  Implementation Status . . . . . . . . . . . . . . . . . . . .   8
+   9.  EDNS Option . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .   9
+   11. Privacy Considerations  . . . . . . . . . . . . . . . . . . .   9
+   12. NAT Considerations  . . . . . . . . . . . . . . . . . . . . .   9
+   13. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   9
+   14. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   9
+   15. References  . . . . . . . . . . . . . . . . . . . . . . . . .  10
+     15.1.  Normative References . . . . . . . . . . . . . . . . . .  10
+     15.2.  Informative References . . . . . . . . . . . . . . . . .  10
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  11
 
 1.  Introduction
@@ -213,7 +213,7 @@ Internet-Draft               DNS Serve Stale               February 2019
    o  A query resolution timer, which caps the total amount of time a
       recursive resolver spends processing the query.
 
-   o  A resolution recheck timer, which limits the frequency at which a
+   o  A failure recheck timer, which limits the frequency at which a
       failed lookup will be attempted.
 
    o  A maximum stale timer, which caps the amount of time that records
@@ -227,9 +227,8 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
    Most recursive resolvers already have the query resolution timer, and
-   effectively some kind of resolution recheck timer.  The client
-   response timer and maximum stale timer are new concepts for this
-   mechanism.
+   effectively some kind of failure recheck timer.  The client response
+   timer and maximum stale timer are new concepts for this mechanism.
 
    When a request is received by the recursive resolver, it SHOULD start
    the client response timer.  This timer is used to avoid client
@@ -243,16 +242,17 @@ Internet-Draft               DNS Serve Stale               February 2019
    not set in the request, it SHOULD immediately return the response
    without consulting the cache for expired records.
 
-   If iterative lookups will be, done then the resolution recheck timer
-   is consulted.  Attempts to refresh from the authorities are
-   recommended to be done no more frequently than every 30 seconds.  If
-   this request was received within this period, the cache may be
-   immediately consulted for stale data to satisfy the request.
+   If iterative lookups will be done, then the failure recheck timer is
+   consulted.  Attempts to refresh from non-responsive or SERVFAILing
+   authoritative nameservers are recommended to be done no more
+   frequently than every 30 seconds.  If this request was received
+   within this period, the cache may be immediately consulted for stale
+   data to satisfy the request.
 
-   Outside the period of the resolution recheck timer, the resolver
-   SHOULD start the query resolution timer and begin the iterative
-   resolution process.  This timer bounds the work done by the resolver
-   when contacting external authorities, and is commonly around 10 to 30
+   Outside the period of the failure recheck timer, the resolver SHOULD
+   start the query resolution timer and begin the iterative resolution
+   process.  This timer bounds the work done by the resolver when
+   contacting external authorities, and is commonly around 10 to 30
    seconds.
 
    If the answer has not been completely determined by the time the
@@ -285,7 +285,75 @@ Internet-Draft               DNS Serve Stale               February 2019
    days, which gives time for monitoring to notice the resolution
    problem and for human intervention to fix it.
 
-6.  Implementation Caveats
+6.  Implementation Considerations
+
+   This document mainly describes the issues behind serving stale data
+   and intentionally does not provide a formal algorithm.  The concept
+   is not overly complex, and the details are best left to resolver
+   authors to implement in their codebases.  The processing of serve-
+   stale is a local operation, and consistent variables between
+   deployments are not needed for interoperability.  However, we would
+   like to highlight the impact of various variables.
+
+   The most obvious of these is the maximum stale timer.  If this
+   variable is too large it could cause excessive cache memory usage,
+   but if it is too small, the serve-stale technique becomes less
+   effective, as the record may not be in the cache to be used if
+   needed.  Memory consumption could be mitigated by prioritizing
+   removal of stale records over non-expired records during cache
+   exhaustion.  Implementations may also wish to consider whether to
+   track the names in requests for their last time of use or their
+   popularity, using that as an additional factor when considering cache
+   eviction.  A feature to manually flush only stale records could also
+   be useful.
+
+   The client response timer is another variable which deserves
+   consideration.  If this value is too short, there exists the risk
+   that stale answers may be used even when the authoritative server is
+   actually reachable but slow; this may result in sub-optimal answers
+   being returned.  Conversely, waiting too long will negatively impact
+   user experience.
+
+   The balance for the failure recheck timer is responsiveness in
+   detecting the renewed availability of authorities versus the extra
+   resource use of resolution.  If this variable is set too large, stale
+   answers may continue to be returned even after the authoritative
+   server is reachable; per [RFC2308], Section 7, this should be no more
+   than five minutes.  If this variable is too small, authoritative
+   servers may be rapidly hit with a significant amount of traffic when
+   they become reachable again.
+
+   Regarding the TTL to set on stale records in the response,
+   historically TTLs of zero seconds have been problematic for some
+   implementations, and negative values can't effectively be
+   communicated to existing software.  Other very short TTLs could lead
+   to congestive collapse as TTL-respecting clients rapidly try to
+   refresh.  The recommended 30 seconds not only sidesteps those
+   potential problems with no practical negative consequences, it also
+
+
+
+Lawrence, et al.         Expires August 27, 2019                [Page 6]
+
+Internet-Draft               DNS Serve Stale               February 2019
+
+
+   rate limits further queries from any client that honors the TTL, such
+   as a forwarding resolver.
+
+   Apart from timers, one more implementation consideration is the use
+   of stale nameserver addresses for lookups.  This is mentioned
+   explicitly because, in some resolvers, getting the addresses for
+   nameservers is a separate path from a normal cache lookup.  If
+   authoritative server addresses are not able to be refreshed,
+   resolution can possibly still be successful if the authoritative
+   servers themselves are up.  For instance, consider an attack on a
+   toplevel domain that takes its nameservers offline; serve-stale
+   resolvers that had expired glue addresses for subdomains within that
+   TLD would still be able to resolve names within those subdomains,
+   even those it had not previously looked up.
+
+7.  Implementation Caveats
 
    Answers from authoritative servers that have a DNS Response Code of
    either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have
@@ -318,74 +386,6 @@ Internet-Draft               DNS Serve Stale               February 2019
 
    Canonical Name (CNAME) records mingled in the expired cache with
    other records at the same owner name can cause surprising results.
-   This was observed with an initial implementation in BIND when a
-   hostname changed from having an IPv4 Address (A) record to a CNAME.
-   The version of BIND being used did not evict other types in the cache
-   when a CNAME was received, which in normal operations is not a
-   significant issue.  However, after both records expired and the
-   authorities became unavailable, the fallback to stale answers
-   returned the older A instead of the newer CNAME.
-
-
-
-
-
-
-
-
-Lawrence, et al.         Expires August 27, 2019                [Page 6]
-
-Internet-Draft               DNS Serve Stale               February 2019
-
-
-6.1.  Implementation Considerations
-
-   This document mainly describes the issues behind serving stale data
-   and intentionally does not provide a formal algorithm.  The concept
-   is not overly complex, and the details are best left to resolver
-   authors to implement in their codebases.  The processing of serve-
-   stale is a local operation, and consistent variables between
-   deployments are not needed for interoperability.  However, we would
-   like to highlight the impact of various variables.
-
-   The most obvious of these is the maximum stale timer.  If this
-   variable is too large it could cause excessive cache memory usage,
-   but if it is too small, the serve-stale technique becomes less
-   effective, as the record may not be in the cache to be used if
-   needed.  Memory consumption could be mitigated by prioritizing
-   removal of stale records over non-expired records during cache
-   exhaustion.  Implementations may also wish to consider whether to
-   track the names in requests for their last time of use or their
-   popularity, using that as an additional factor when considering cache
-   eviction.  A feature to manually flush only stale records could also
-   be useful.
-
-   The client response timer is another variable which deserves
-   consideration.  If this value is too short, there exists the risk
-   that stale answers may be used even when the authoritative server is
-   actually reachable but slow; this may result in sub-optimal answers
-   being returned.  Conversely, waiting too long will negatively impact
-   user experience.
-
-   The balance for the resolution recheck timer is responsiveness in
-   detecting the renewed availability of authorities versus the extra
-   resource use of resolution.  If this variable is set too large, stale
-   answers may continue to be returned even after the authoritative
-   server is reachable.  If this variable is too small, authoritative
-   servers may be rapidly hit with a significant amount of traffic when
-   they become reachable again.
-
-   Regarding the TTL to set on stale records in the response,
-   historically TTLs of zero seconds have been problematic for some
-   implementations, and negative values can't effectively be
-   communicated to existing software.  Other very short TTLs could lead
-   to congestive collapse as TTL-respecting clients rapidly try to
-   refresh.  The recommended 30 seconds not only sidesteps those
-   potential problems with no practical negative consequences, it also
-   rate limits further queries from any client that honors the TTL, such
-   as a forwarding resolver.
-
-
 
 
 
@@ -394,19 +394,15 @@ Lawrence, et al.         Expires August 27, 2019                [Page 7]
 Internet-Draft               DNS Serve Stale               February 2019
 
 
-   Apart from timers, one more implementation consideration is the use
-   of stale nameserver addresses for lookups.  This is mentioned
-   explicitly because, in some resolvers, getting the addresses for
-   nameservers is a separate path from a normal cache lookup.  If
-   authoritative server addresses are not able to be refreshed,
-   resolution can possibly still be successful if the authoritative
-   servers themselves are up.  For instance, consider an attack on a
-   toplevel domain that takes its nameservers offline; serve-stale
-   resolvers that had expired glue addresses for subdomains within that
-   TLD would still be able to resolve names within those subdomains,
-   even those it had not previously looked up.
+   This was observed with an initial implementation in BIND when a
+   hostname changed from having an IPv4 Address (A) record to a CNAME.
+   The version of BIND being used did not evict other types in the cache
+   when a CNAME was received, which in normal operations is not a
+   significant issue.  However, after both records expired and the
+   authorities became unavailable, the fallback to stale answers
+   returned the older A instead of the newer CNAME.
 
-7.  Implementation Status
+8.  Implementation Status
 
    [RFC Editor: per RFC 6982 this section should be removed prior to
    publication.]
@@ -436,12 +432,16 @@ Internet-Draft               DNS Serve Stale               February 2019
    of requests that fail or experience abnormally long resolution times
    during an attack.
 
-8.  EDNS Option
+9.  EDNS Option
 
    During the discussion of serve-stale in the IETF dnsop working group,
    it was suggested that an EDNS option should be available to either
    explicitly opt-in to getting data that is possibly stale, or at least
+   as a debugging tool to indicate when stale data has been used for a
+   response.
 
+   The opt-in use case was rejected as the technique was meant to be
+   immediately useful in improving DNS resiliency for all clients.
 
 
 
@@ -450,18 +450,12 @@ Lawrence, et al.         Expires August 27, 2019                [Page 8]
 Internet-Draft               DNS Serve Stale               February 2019
 
 
-   as a debugging tool to indicate when stale data has been used for a
-   response.
-
-   The opt-in use case was rejected as the technique was meant to be
-   immediately useful in improving DNS resiliency for all clients.
-
    The reporting case was ultimately also rejected as working group
    participants determined that even the simpler version of a proposed
    option was still too much bother to implement for too little
    perceived value.
 
-9.  Security Considerations
+10.  Security Considerations
 
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
@@ -486,18 +480,24 @@ Internet-Draft               DNS Serve Stale               February 2019
    probably not use a caching resolver at all and instead fully look up
    each name freshly from the root.
 
-10.  Privacy Considerations
+11.  Privacy Considerations
 
    This document does not add any practical new privacy issues.
 
-11.  NAT Considerations
+12.  NAT Considerations
 
    The method described here is not affected by the use of NAT devices.
 
+13.  IANA Considerations
 
+   There are no IANA considerations.
 
+14.  Acknowledgements
 
-
+   The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
+   Matti Klock, Jason Moreau, Giovane Moura, Jean Roy, Mukund Sivaraman,
+   Davey Song, Paul Vixie, Ralf Weber and Paul Wouters for their review
+   and feedback.
 
 
 
@@ -506,20 +506,9 @@ Lawrence, et al.         Expires August 27, 2019                [Page 9]
 Internet-Draft               DNS Serve Stale               February 2019
 
 
-12.  IANA Considerations
+15.  References
 
-   There are no IANA considerations.
-
-13.  Acknowledgements
-
-   The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-   Matti Klock, Jason Moreau, Giovane Moura, Jean Roy, Mukund Sivaraman,
-   Davey Song, Paul Vixie, Ralf Weber and Paul Wouters for their review
-   and feedback.
-
-14.  References
-
-14.1.  Normative References
+15.1.  Normative References
 
    [RFC1034]  Mockapetris, P., "Domain names - concepts and facilities",
               STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987,
@@ -531,18 +520,22 @@ Internet-Draft               DNS Serve Stale               February 2019
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
               <https://www.rfc-editor.org/info/rfc2181>.
 
+   [RFC2308]  Andrews, M., "Negative Caching of DNS Queries (DNS
+              NCACHE)", RFC 2308, DOI 10.17487/RFC2308, March 1998,
+              <https://www.rfc-editor.org/info/rfc2308>.
+
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
 
-14.2.  Informative References
+15.2.  Informative References
 
    [CloudStrife]
               Borgolte, K., Fiebig, T., Hao, S., Kruegel, C., and G.
@@ -550,8 +543,15 @@ Internet-Draft               DNS Serve Stale               February 2019
               Domain-Validated Certificates", ACM 2018 Applied
               Networking Research Workshop, DOI 10.1145/3232755.3232859,
               July 2018, <https://www.ndss-symposium.org/wp-
-              content/uploads/2018/02/
-              ndss2018_06A-4_Borgolte_paper.pdf>.
+              content/uploads/2018/02/ndss2018_06A-
+              4_Borgolte_paper.pdf>.
+
+   [DikeBreaks]
+              Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.
+              Davids, "When the Dike Breaks: Dissecting DNS Defenses
+              During DDos", ACM 2018 Internet Measurement Conference,
+              DOI 10.1145/3278532.3278534, October 2018,
+              <https://www.isi.edu/~johnh/PAPERS/Moura18b.pdf>.
 
 
 
@@ -561,13 +561,6 @@ Lawrence, et al.         Expires August 27, 2019               [Page 10]
 
 Internet-Draft               DNS Serve Stale               February 2019
 
-
-   [DikeBreaks]
-              Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.
-              Davids, "When the Dike Breaks: Dissecting DNS Defenses
-              During DDos", ACM 2018 Internet Measurement Conference,
-              DOI 10.1145/3278532.3278534, October 2018,
-              <https://www.isi.edu/~johnh/PAPERS/Moura18b.pdf>.
 
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
               Terminology", RFC 7719, DOI 10.17487/RFC7719, December
@@ -594,6 +587,13 @@ Authors' Addresses
    Google
 
    Email: puneets@google.com
+
+
+
+
+
+
+
 
 
 
