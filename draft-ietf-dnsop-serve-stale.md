@@ -80,14 +80,15 @@ informative:
 
 --- abstract
 
-This draft defines a method (serve-stale) for recursive resolvers to use stale DNS
-data to avoid outages when authoritative nameservers cannot be reached
-to refresh expired data.  It updates the definition of TTL from
-{{!RFC1034}}, {{!RFC1035}}, and {{!RFC2181}} to make it clear that
-data can be kept in the cache beyond the TTL expiry and used for
-responses when a refreshed answer is not readily available. One of the
-motivations for serve-stale is to make the DNS more resilient to DoS
-attacks, and thereby make them less attractive as an attack vector.
+This draft defines a method (serve-stale) for recursive resolvers to
+use stale DNS data to avoid outages when authoritative nameservers
+cannot be reached to refresh expired data.  It updates the definition
+of TTL from {{!RFC1034}}, {{!RFC1035}}, and {{!RFC2181}} to make it
+clear that data can be kept in the cache beyond the TTL expiry and
+used for responses when a refreshed answer is not readily
+available. One of the motivations for serve-stale is to make the DNS
+more resilient to DoS attacks, and thereby make them less attractive
+as an attack vector.
 
 --- note_Ed_note
 
@@ -188,11 +189,30 @@ reflects the current practice of major modern DNS resolvers.
 
 When returning a response containing stale records, the recursive
 resolver MUST set the TTL of each expired record in the message to a
-value greater than 0, with 30 seconds recommended. Historically TTLs of zero seconds have been problematic for some implementations, and negative values can't effectively be communicated to existing software. Other very short TTLs could lead to congestive collapse as TTL-respecting clients rapidly try to refresh. The recommended value of 30 seconds not only sidesteps those potential problems with no practical negative consequences, it also rate limits further queries from any client that honors the TTL, such as a forwarding resolver.
+value greater than 0, with 30 seconds recommended. Historically TTLs
+of zero seconds have been problematic for some implementations, and
+negative values can't effectively be communicated to existing
+software. Other very short TTLs could lead to congestive collapse as
+TTL-respecting clients rapidly try to refresh. The recommended value
+of 30 seconds not only sidesteps those potential problems with no
+practical negative consequences, it also rate limits further queries
+from any client that honors the TTL, such as a forwarding resolver.
 
-When a recursive resolver is unable to refresh a record, it is not necessary that every client request trigger a new lookup flow in the presence of stale data but that a good faith effort has recently been made to refresh the stale data before it is delivered to any client. The implementation SHOULD wait a configured amount of time between successive attempts to refresh the record. The recommended value for this timer is 30 seconds.
+When a recursive resolver is unable to refresh a record, it is not
+necessary that every client request trigger a new lookup flow in the
+presence of stale data but that a good faith effort has recently been
+made to refresh the stale data before it is delivered to any
+client. The implementation SHOULD wait a configured amount of time
+between successive attempts to refresh the record. The recommended
+value for this timer is 30 seconds.
 
-Answers from authoritative servers that have a DNS Response Code of either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have refreshed the data at the resolver. In particular, this means that this method is not meant to protect against operator error at the authoritative server that turns a name that is intended to be valid into one that is non-existent, because there is no way for a resolver to know intent.
+Answers from authoritative servers that have a DNS Response Code of
+either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have
+refreshed the data at the resolver. In particular, this means that
+this method is not meant to protect against operator error at the
+authoritative server that turns a name that is intended to be valid
+into one that is non-existent, because there is no way for a resolver
+to know intent.
 
 # Example Method
 
