@@ -80,7 +80,7 @@ informative:
 
 --- abstract
 
-This draft defines a method for recursive resolvers to use stale DNS
+This draft defines a method (serve-stale) for recursive resolvers to use stale DNS
 data to avoid outages when authoritative nameservers cannot be reached
 to refresh expired data.  It updates the definition of TTL from
 {{!RFC1034}}, {{!RFC1035}}, and {{!RFC2181}} to make it clear that
@@ -138,6 +138,13 @@ aged past its TTL, that information can still be useful for generating
 an answer under the metaphorical assumption that "stale bread is
 better than no bread."
 
+Several major recursive resolver operators currently use stale data
+for answers in some way, including Akamai (in three different resolver
+implementations), BIND, Knot, OpenDNS, and Unbound.  Apple MacOS can
+also use stale data as part of the Happy Eyeballs algorithms in
+mDNSResponder.  The collective operational experience is that it
+provides significant benefit with minimal downside.
+
 {{!RFC1035}} Section 3.2.1 says that the TTL "specifies the time
 interval that the resource record may be cached before the source of
 the information should again be consulted", and Section 4.1.3 further
@@ -159,13 +166,6 @@ time to live."  This is again not {{RFC2119}}-normative language, but
 does convey the natural language connotation that data becomes
 unusable past TTL expiry.
 
-Several major recursive resolver operators currently use stale data
-for answers in some way, including Akamai (in three different resolver
-implementations), BIND, Knot, OpenDNS, and Unbound.  Apple can also
-use stale data as part of the Happy Eyeballs algorithms in
-mDNSResponder.  The collective operational experience is that it
-provides significant benefit with minimal downside.
-
 # Standards Action
 
 The definition of TTL in {{RFC1035}} Sections 3.2.1 and 4.1.3 is
@@ -186,6 +186,14 @@ positive, rather than 0, is a change from {{RFC2181}}.  Suggesting a
 cap of seven days, rather than the 68 years allowed by {{RFC2181}},
 reflects the current practice of major modern DNS resolvers.
 
+When returning a response containing stale records, the recursive
+resolver MUST set the TTL of each expired record in the message to a
+value greater than 0, with 30 seconds recommended. Historically TTLs of zero seconds have been problematic for some implementations, and negative values can't effectively be communicated to existing software. Other very short TTLs could lead to congestive collapse as TTL-respecting clients rapidly try to refresh. The recommended value of 30 seconds not only sidesteps those potential problems with no practical negative consequences, it also rate limits further queries from any client that honors the TTL, such as a forwarding resolver.
+
+When a recursive resolver is unable to refresh a record, it is not necessary that every client request trigger a new lookup flow in the presence of stale data but that a good faith effort has recently been made to refresh the stale data before it is delivered to any client. The implementation SHOULD wait a configured amount of time between successive attempts to refresh the record. The recommended value for this timer is 30 seconds.
+
+Answers from authoritative servers that have a DNS Response Code of either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have refreshed the data at the resolver. In particular, this means that this method is not meant to protect against operator error at the authoritative server that turns a name that is intended to be valid into one that is non-existent, because there is no way for a resolver to know intent.
+
 # Example Method
 
 There is conceivably more than one way a recursive resolver could
@@ -203,7 +211,7 @@ request and sending its response.
 recursive resolver spends processing the query.
 
 * A failure recheck timer, which limits the frequency at which a
-failed lookup will be attempted.
+failed lookup will be attempted again.
 
 * A maximum stale timer, which caps the amount of time
 that records will be kept past their expiration.
@@ -242,9 +250,9 @@ If the answer has not been completely determined by the time the
 client response timer has elapsed, the resolver SHOULD then check its
 cache to see whether there is expired data that would satisfy the
 request.  If so, it adds that data to the response message; it MUST 
-set the TTL of each expired record in the message greater than 0, with
-30 seconds recommended. The response is then sent to the client while the 
-resolver continues its attempt to refresh the data.
+set the TTL of each expired record in the message to a value greater
+than 0, with 30 seconds recommended. The response is then sent to the
+client while the resolver continues its attempt to refresh the data.
 
 When no authorities are able to be reached during a resolution
 attempt, the resolver SHOULD attempt to refresh the delegation.
@@ -273,7 +281,7 @@ impact of various variables.
 The most obvious of these is the maximum stale timer. If this variable
 is too large it could cause excessive cache memory usage, but if it is
 too small, the serve-stale technique becomes less effective, as the
-record may not be in the cache to be used if needed.  Memory
+record may not be in the cache to be used if needed.  Increased memory
 consumption could be mitigated by prioritizing removal of stale
 records over non-expired records during cache exhaustion.
 Implementations may also wish to consider whether to track the names
@@ -290,7 +298,7 @@ user experience.
 
 The balance for the failure recheck timer is responsiveness in
 detecting the renewed availability of authorities versus the extra
-resource use of resolution. If this variable is set too large, stale
+resource use for resolution. If this variable is set too large, stale
 answers may continue to be returned even after the authoritative
 server is reachable; per {{!RFC2308}}, Section 7, this should be no
 more than five minutes.  If this variable is too small, authoritative
@@ -302,7 +310,7 @@ historically TTLs of zero seconds have been problematic for some
 implementations, and negative values can't effectively be communicated
 to existing software.  Other very short TTLs could lead to congestive
 collapse as TTL-respecting clients rapidly try to refresh.  The
-recommended 30 seconds not only sidesteps those potential problems
+recommended value of 30 seconds not only sidesteps those potential problems
 with no practical negative consequences, it also rate limits
 further queries from any client that honors the TTL, such as a
 forwarding resolver.
@@ -313,21 +321,13 @@ because, in some resolvers, getting the addresses for nameservers is
 a separate path from a normal cache lookup. If authoritative server
 addresses are not able to be refreshed, resolution can possibly still
 be successful if the authoritative servers themselves are up.  For
-instance, consider an attack on a toplevel domain that takes its
+instance, consider an attack on a top-level domain that takes its
 nameservers offline; serve-stale resolvers that had expired glue
 addresses for subdomains within that TLD would still be able to
 resolve names within those subdomains, even those it had not
 previously looked up.
 
 # Implementation Caveats
-
-Answers from authoritative servers that have a DNS Response Code of
-either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have
-refreshed the data at the resolver.  In particular, this means that
-this method is not meant to protect against operator error at the
-authoritative server that turns a name that is intended to be valid
-into one that is non-existent, because there is no way for a resolver
-to know intent.  
 
 Stale data is used only when refreshing has failed, in order to adhere
 to the original intent of the design of the DNS and the behaviour
@@ -365,7 +365,7 @@ instead of the newer CNAME.
 \[RFC Editor: per RFC 6982 this section should be removed prior to
 publication.\]
 
-The algorithm described in the {{example-method}} section was
+The algorithm described in {{example-method}} was
 originally implemented as a patch to BIND 9.7.0.  It has been in
 production on Akamai's production network since 2011, and effectively
 smoothed over transient failures and longer outages that would have
