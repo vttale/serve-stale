@@ -101,7 +101,7 @@ Table of Contents
    expanded to allow for expired data to be used in the exceptional
    circumstance that a recursive resolver is unable to refresh the
    information.  It is predicated on the observation that authoritative
-   server unavailability can cause outages even when the underlying data
+   answer unavailability can cause outages even when the underlying data
    those servers would return is typically unchanged.
 
    We describe a method below for this use of stale data, balancing the
@@ -127,13 +127,6 @@ Table of Contents
    generating an answer under the metaphorical assumption that "stale
    bread is better than no bread."
 
-   Several major recursive resolver operators currently use stale data
-   for answers in some way, including Akamai (in three different
-   resolver implementations), BIND, Knot, OpenDNS, and Unbound.  Apple
-   MacOS can also use stale data as part of the Happy Eyeballs
-   algorithms in mDNSResponder.  The collective operational experience
-   is that it provides significant benefit with minimal downside.
-
    [RFC1035] Section 3.2.1 says that the TTL "specifies the time
    interval that the resource record may be cached before the source of
    the information should again be consulted", and Section 4.1.3 further
@@ -154,6 +147,13 @@ Table of Contents
    not a mandatory time to live."  This is again not [RFC2119]-normative
    language, but does convey the natural language connotation that data
    becomes unusable past TTL expiry.
+
+   Several major recursive resolver operators currently use stale data
+   for answers in some way, including Akamai (in three different
+   resolver implementations), BIND, Knot, OpenDNS, and Unbound.  Apple
+   MacOS can also use stale data as part of the Happy Eyeballs
+   algorithms in mDNSResponder.  The collective operational experience
+   is that it provides significant benefit with minimal downside.
 
 4.  Standards Action
 
@@ -177,30 +177,14 @@ Table of Contents
 
    When returning a response containing stale records, the recursive
    resolver MUST set the TTL of each expired record in the message to a
-   value greater than 0, with 30 seconds recommended.  Historically TTLs
-   of zero seconds have been problematic for some implementations, and
-   negative values can't effectively be communicated to existing
-   software.  Other very short TTLs could lead to congestive collapse as
-   TTL-respecting clients rapidly try to refresh.  The recommended value
-   of 30 seconds not only sidesteps those potential problems with no
-   practical negative consequences, it also rate limits further queries
-   from any client that honors the TTL, such as a forwarding resolver.
-
-   When a recursive resolver is unable to refresh a record, it is not
-   necessary that every client request trigger a new lookup flow in the
-   presence of stale data but that a good faith effort has recently been
-   made to refresh the stale data before it is delivered to any client.
-   The implementation SHOULD wait a configured amount of time between
-   successive attempts to refresh the record.  The recommended value for
-   this timer is 30 seconds.
+   value greater than 0, with 30 seconds RECOMMENDED.
 
    Answers from authoritative servers that have a DNS Response Code of
-   either 0 (NOERROR) or 3 (NXDOMAIN) MUST be considered to have
-   refreshed the data at the resolver.  In particular, this means that
-   this method is not meant to protect against operator error at the
-   authoritative server that turns a name that is intended to be valid
-   into one that is non-existent, because there is no way for a resolver
-   to know intent.
+   either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
+   bit set MUST be considered to have refreshed the data at the
+   resolver.  Answers from authoritative servers that have any other
+   response code SHOULD be considered a failure to refresh the data and
+   therefor leave any previous state intact.
 
 5.  Example Method
 
@@ -241,8 +225,8 @@ Table of Contents
    without consulting the cache for expired records.
 
    If iterative lookups will be done, then the failure recheck timer is
-   consulted.  Attempts to refresh from non-responsive or SERVFAILing
-   authoritative nameservers are recommended to be done no more
+   consulted.  Attempts to refresh from non-responsive or otherwise
+   failing authoritative nameservers are recommended to be done no more
    frequently than every 30 seconds.  If this request was received
    within this period, the cache may be immediately consulted for stale
    data to satisfy the request.
@@ -256,11 +240,9 @@ Table of Contents
    If the answer has not been completely determined by the time the
    client response timer has elapsed, the resolver SHOULD then check its
    cache to see whether there is expired data that would satisfy the
-   request.  If so, it adds that data to the response message; it MUST
-   set the TTL of each expired record in the message to a value greater
-   than 0, with 30 seconds recommended.  The response is then sent to
-   the client while the resolver continues its attempt to refresh the
-   data.
+   request.  If so, it adds that data to the response message with a TTL
+   greater than 0 per Section 4.  The response is then sent to the
+   client while the resolver continues its attempt to refresh the data.
 
    When no authorities are able to be reached during a resolution
    attempt, the resolver SHOULD attempt to refresh the delegation.
@@ -284,7 +266,8 @@ Table of Contents
    authors to implement in their codebases.  The processing of serve-
    stale is a local operation, and consistent variables between
    deployments are not needed for interoperability.  However, we would
-   like to highlight the impact of various variables.
+   like to highlight the impact of various implementation choices,
+   starting with the timers involved.
 
    The most obvious of these is the maximum stale timer.  If this
    variable is too large it could cause excessive cache memory usage,
@@ -324,32 +307,62 @@ Table of Contents
    also rate limits further queries from any client that honors the TTL,
    such as a forwarding resolver.
 
-   Apart from timers, one more implementation consideration is the use
-   of stale nameserver addresses for lookups.  This is mentioned
-   explicitly because, in some resolvers, getting the addresses for
-   nameservers is a separate path from a normal cache lookup.  If
-   authoritative server addresses are not able to be refreshed,
-   resolution can possibly still be successful if the authoritative
-   servers themselves are up.  For instance, consider an attack on a
-   top-level domain that takes its nameservers offline; serve-stale
-   resolvers that had expired glue addresses for subdomains within that
-   TLD would still be able to resolve names within those subdomains,
-   even those it had not previously looked up.
+   Another implementation consideration is the use of stale nameserver
+   addresses for lookups.  This is mentioned explicitly because, in some
+   resolvers, getting the addresses for nameservers is a separate path
+   from a normal cache lookup.  If authoritative server addresses are
+   not able to be refreshed, resolution can possibly still be successful
+   if the authoritative servers themselves are up.  For instance,
+   consider an attack on a top-level domain that takes its nameservers
+   offline; serve-stale resolvers that had expired glue addresses for
+   subdomains within that TLD would still be able to resolve names
+   within those subdomains, even those it had not previously looked up.
+
+   The directive in Section 4 that only NoError and NXDomain responses
+   should invalidate any previously associated answer stems from the
+   fact that no other RCODEs which a resolver normally encounters makes
+   any assertions regarding the name in the question or any data
+   associated with it.  This comports with existing resolver behavior
+   where a failed lookup (say, during pre-fetching) doesn't impact the
+   existing cache state.  Some authoritative servers operators have said
+   that they would prefer stale answers to be used in the event that
+   their servers are responding but not giving true authoritative
+   answers.
+
+   Since the goal of serve-stale is to provide resiliency for all
+   obvious errors to refresh data, these other RCODEs are treated as
+   though they are equivalent to not getting an authoritative response.
+   Although NXDomain for a previously existing name might well be an
+   error, it is not handled that way because there is no effective way
+   to tell the operator intent for legitimate cases versus error cases.
+
+   During discussion in dnsop it was suggested that Refused from all
+   authorities should be treated, from a serve-stale perspective, as
+   though it were equivalent to NXDomain because it represents an
+   explicit signal to take down the zone from servers that still have
+   the zone's delegation pointed to them.  Refused, however, is also
+   overloaded to mean multiple possible failures which could represent
+   transient configuration failures.  Operational experience has shown
+   that purposefully returning Refused is a poor way to achieve an
+   explicit takedown of a zone compared to either updating the
+   delegation or returning NXDomain with a suitable SOA for extended
+   negative caching.  Implementers may nonetheless wish to consider
+   whether to treat all authorities returning Refused as preempting the
+   use of stale data.
 
 7.  Implementation Caveats
 
-   Stale data is used only when refreshing has failed, in order to
-   adhere to the original intent of the design of the DNS and the
-   behaviour expected by operators.  If stale data were to always be
-   used immediately and then a cache refresh attempted after the client
+   Stale data is used only when refreshing has failed in order to adhere
+   to the original intent of the design of the DNS and the behaviour
+   expected by operators.  If stale data were to always be used
+   immediately and then a cache refresh attempted after the client
    response has been sent, the resolver would frequently be sending data
    that it would have had no trouble refreshing.  As modern resolvers
    use techniques like pre-fetching and request coalescing for
    efficiency, it is not necessary that every client request needs to
    trigger a new lookup flow in the presence of stale data, but rather
    that a good-faith effort has been recently made to refresh the stale
-   data before it is delivered to any client.  The recommended period
-   between attempting refreshes is 30 seconds.
+   data before it is delivered to any client.
 
    It is important to continue the resolution attempt after the stale
    response has been sent, until the query resolution timeout, because
@@ -359,13 +372,13 @@ Table of Contents
    has been sent would mean that answers in these pathological cases
    would never be refreshed.
 
-   Canonical Name (CNAME) records mingled in the expired cache with
-   other records at the same owner name can cause surprising results.
-   This was observed with an initial implementation in BIND when a
-   hostname changed from having an IPv4 Address (A) record to a CNAME.
-   The version of BIND being used did not evict other types in the cache
-   when a CNAME was received, which in normal operations is not a
-   significant issue.  However, after both records expired and the
+   Be aware that Canonical Name (CNAME) records mingled in the expired
+   cache with other records at the same owner name can cause surprising
+   results.  This was observed with an initial implementation in BIND
+   when a hostname changed from having an IPv4 Address (A) record to a
+   CNAME.  The version of BIND being used did not evict other types in
+   the cache when a CNAME was received, which in normal operations is
+   not a significant issue.  However, after both records expired and the
    authorities became unavailable, the fallback to stale answers
    returned the older A instead of the newer CNAME.
 
