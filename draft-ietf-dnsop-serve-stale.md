@@ -235,7 +235,9 @@ The resolver then checks its cache for any unexpired data that
 satisfies the request and of course returns them if available.  If it
 finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it SHOULD immediately return the response without
-consulting the cache for expired records.
+consulting the cache for expired records.  Typically this response
+would be a referral to authoritative nameservers covering the zone,
+but the specifics are implementation dependent.
 
 If iterative lookups will be done, then the failure recheck timer is
 consulted.  Attempts to refresh from non-responsive or otherwise
@@ -389,7 +391,7 @@ would never be refreshed.
 
 The continuing prohibition against using data with a 0 second TTL
 beyond the current transaction explicitly extends to it being unusable
-even as for stale fallback, as it is not to be cached at all.
+even for stale fallback, as it is not to be cached at all.
 
 Be aware that Canonical Name (CNAME) records mingled in the expired
 cache with other records at the same owner name can cause surprising

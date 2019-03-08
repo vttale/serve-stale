@@ -253,7 +253,9 @@ Internet-Draft               DNS Serve Stale               February 2019
    satisfies the request and of course returns them if available.  If it
    finds no relevant unexpired data and the Recursion Desired flag is
    not set in the request, it SHOULD immediately return the response
-   without consulting the cache for expired records.
+   without consulting the cache for expired records.  Typically this
+   response would be a referral to authoritative nameservers covering
+   the zone, but the specifics are implementation dependent.
 
    If iterative lookups will be done, then the failure recheck timer is
    consulted.  Attempts to refresh from non-responsive or otherwise
@@ -272,8 +274,6 @@ Internet-Draft               DNS Serve Stale               February 2019
    If the answer has not been completely determined by the time the
    client response timer has elapsed, the resolver SHOULD then check its
    cache to see whether there is expired data that would satisfy the
-   request.  If so, it adds that data to the response message with a TTL
-
 
 
 
@@ -282,6 +282,7 @@ Lawrence, et al.         Expires August 27, 2019                [Page 5]
 Internet-Draft               DNS Serve Stale               February 2019
 
 
+   request.  If so, it adds that data to the response message with a TTL
    greater than 0 per Section 4.  The response is then sent to the
    client while the resolver continues its attempt to refresh the data.
 
@@ -328,7 +329,6 @@ Internet-Draft               DNS Serve Stale               February 2019
    actually reachable but slow; this may result in sub-optimal answers
    being returned.  Conversely, waiting too long will negatively impact
    user experience.
-
 
 
 
@@ -432,8 +432,7 @@ Internet-Draft               DNS Serve Stale               February 2019
 
    The continuing prohibition against using data with a 0 second TTL
    beyond the current transaction explicitly extends to it being
-   unusable even as for stale fallback, as it is not to be cached at
-   all.
+   unusable even for stale fallback, as it is not to be cached at all.
 
    Be aware that Canonical Name (CNAME) records mingled in the expired
    cache with other records at the same owner name can cause surprising
@@ -442,6 +441,7 @@ Internet-Draft               DNS Serve Stale               February 2019
    CNAME.  The version of BIND being used did not evict other types in
    the cache when a CNAME was received, which in normal operations is
    not a significant issue.  However, after both records expired and the
+
 
 
 
