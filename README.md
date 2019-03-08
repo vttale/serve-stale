@@ -166,9 +166,9 @@ Table of Contents
       interpreted to mean that the RR can only be used for the
       transaction in progress, and should not be cached.  Values SHOULD
       be capped on the orders of days to weeks, with a recommended cap
-      of 604,800 seconds.  If the authority for the data is unavailable
-      when attempting to refresh, the record MAY be used as though it is
-      unexpired.
+      of 604,800 seconds.  If the data is unable to be authoritatively
+      refreshed when the TTL expires, the record MAY be used as though
+      it is unexpired.
 
    Interpreting values which have the high order bit set as being
    positive, rather than 0, is a change from [RFC2181].  Suggesting a
@@ -235,7 +235,8 @@ Table of Contents
    start the query resolution timer and begin the iterative resolution
    process.  This timer bounds the work done by the resolver when
    contacting external authorities, and is commonly around 10 to 30
-   seconds.
+   seconds.  If this timer expires on an attempted lookup that is still
+   being processed, the resolution effort is abandoned.
 
    If the answer has not been completely determined by the time the
    client response timer has elapsed, the resolver SHOULD then check its
@@ -372,6 +373,11 @@ Table of Contents
    has been sent would mean that answers in these pathological cases
    would never be refreshed.
 
+   The continuing prohibition against using data with a 0 second TTL
+   beyond the current transaction explicitly extends to it being
+   unusable even as for stale fallback, as it is not to be cached at
+   all.
+
    Be aware that Canonical Name (CNAME) records mingled in the expired
    cache with other records at the same owner name can cause surprising
    results.  This was observed with an initial implementation in BIND
@@ -468,9 +474,9 @@ Table of Contents
 14.  Acknowledgements
 
    The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-   Matti Klock, Jason Moreau, Giovane Moura, Jean Roy, Mukund Sivaraman,
-   Davey Song, Paul Vixie, Ralf Weber and Paul Wouters for their review
-   and feedback.
+   Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
+   Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
+   for their review and feedback.
 
 15.  References
 
