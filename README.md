@@ -329,8 +329,8 @@ Table of Contents
    where a failed lookup (say, during pre-fetching) doesn't impact the
    existing cache state.  Some authoritative servers operators have said
    that they would prefer stale answers to be used in the event that
-   their servers are responding but not giving true authoritative
-   answers.
+   their servers are responding with errors like ServFail instead of
+   giving true authoritative answers.
 
    Since the goal of serve-stale is to provide resiliency for all
    obvious errors to refresh data, these other RCODEs are treated as
