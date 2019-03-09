@@ -262,7 +262,10 @@ the client while the resolver continues its attempt to refresh the
 data.
 
 When no authorities are able to be reached during a resolution
-attempt, the resolver SHOULD attempt to refresh the delegation.
+attempt, the resolver SHOULD attempt to refresh the delegation and
+restart the iterative lookup process with the remaining time on the
+query resolution timer. This resumption should be done only once
+during one resolution effort.
 
 Outside the resolution process, the maximum stale timer is used for
 cache management and is independent of the query resolution
@@ -344,13 +347,14 @@ behavior where a failed lookup (say, during pre-fetching) doesn't
 impact the existing cache state.  Some authoritative servers operators
 have said that they would prefer stale answers to be used in the event
 that their servers are responding with errors like ServFail instead of
-giving true authoritative answers.
+giving true authoritative answers.  Implementers MAY decide to return
+stale answers in this situation.
 
 Since the goal of serve-stale is to provide resiliency for all obvious
 errors to refresh data, these other RCODEs are treated as though they
 are equivalent to not getting an authoritative response.  Although
 NXDomain for a previously existing name might well be an error, it is
-not handled that way because there is no effective way to tell the
+not handled that way because there is no effective way to distinguish
 operator intent for legitimate cases versus error cases.
 
 During discussion in dnsop it was suggested that Refused from all
@@ -360,10 +364,10 @@ explicit signal to take down the zone from servers that still have the
 zone's delegation pointed to them.  Refused, however, is also
 overloaded to mean multiple possible failures which could represent
 transient configuration failures.  Operational experience has shown
-that purposefully returning Refused is a poor way to achieve an
+that purposely returning Refused is a poor way to achieve an
 explicit takedown of a zone compared to either updating the delegation
 or returning NXDomain with a suitable SOA for extended negative
-caching.  Implementers may nonetheless wish to consider whether to
+caching.  Implementers MAY nonetheless consider whether to
 treat all authorities returning Refused as preempting the use of stale
 data.
 
