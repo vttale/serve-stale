@@ -6,12 +6,12 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: August 27, 2019                                          Google
-                                                       February 23, 2019
+Expires: September 10, 2019                                       Google
+                                                          March 09, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-03
+                    draft-ietf-dnsop-serve-stale-04
 
 Abstract
 
@@ -53,12 +53,12 @@ Status of This Memo
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 1]
+Lawrence, et al.       Expires September 10, 2019               [Page 1]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
-   This Internet-Draft will expire on August 27, 2019.
+   This Internet-Draft will expire on September 10, 2019.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 2]
+Lawrence, et al.       Expires September 10, 2019               [Page 2]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    information.  It is predicated on the observation that authoritative
@@ -165,9 +165,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 3]
+Lawrence, et al.       Expires September 10, 2019               [Page 3]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    Several major recursive resolver operators currently use stale data
@@ -221,9 +221,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 4]
+Lawrence, et al.       Expires September 10, 2019               [Page 4]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    o  A client response timer, which is the maximum amount of time a
@@ -277,9 +277,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 5]
+Lawrence, et al.       Expires September 10, 2019               [Page 5]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    request.  If so, it adds that data to the response message with a TTL
@@ -333,9 +333,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 6]
+Lawrence, et al.       Expires September 10, 2019               [Page 6]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    being returned.  Conversely, waiting too long will negatively impact
@@ -389,9 +389,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 7]
+Lawrence, et al.       Expires September 10, 2019               [Page 7]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    Although NXDomain for a previously existing name might well be an
@@ -445,9 +445,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 8]
+Lawrence, et al.       Expires September 10, 2019               [Page 8]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    CNAME.  The version of BIND being used did not evict other types in
@@ -501,9 +501,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019                [Page 9]
+Lawrence, et al.       Expires September 10, 2019               [Page 9]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    The reporting case was ultimately also rejected as working group
@@ -557,9 +557,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019               [Page 10]
+Lawrence, et al.       Expires September 10, 2019              [Page 10]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
 15.  References
@@ -613,9 +613,9 @@ Internet-Draft               DNS Serve Stale               February 2019
 
 
 
-Lawrence, et al.         Expires August 27, 2019               [Page 11]
+Lawrence, et al.       Expires September 10, 2019              [Page 11]
 
-Internet-Draft               DNS Serve Stale               February 2019
+Internet-Draft               DNS Serve Stale                  March 2019
 
 
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
@@ -669,4 +669,4 @@ Authors' Addresses
 
 
 
-Lawrence, et al.         Expires August 27, 2019               [Page 12]
+Lawrence, et al.       Expires September 10, 2019              [Page 12]
