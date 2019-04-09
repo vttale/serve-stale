@@ -225,16 +225,16 @@ effectively some kind of failure recheck timer.  The client
 response timer and maximum stale timer are new concepts for this
 mechanism.
 
-When a request is received by the recursive resolver, it SHOULD start
+When a request is received by the recursive resolver, it should start
 the client response timer.  This timer is used to avoid client
-timeouts.  It SHOULD be configurable, with a recommended value of 1.8
+timeouts.  It should be configurable, with a recommended value of 1.8
 seconds as being just under a common timeout value of 2 seconds while
 still giving the resolver a fair shot at resolving the name.
 
 The resolver then checks its cache for any unexpired data that
 satisfies the request and of course returns them if available.  If it
 finds no relevant unexpired data and the Recursion Desired flag is not
-set in the request, it SHOULD immediately return the response without
+set in the request, it should immediately return the response without
 consulting the cache for expired records.  Typically this response
 would be a referral to authoritative nameservers covering the zone,
 but the specifics are implementation dependent.
@@ -247,14 +247,14 @@ this period, the cache may be immediately consulted for stale data to
 satisfy the request.
 
 Outside the period of the failure recheck timer, the resolver
-SHOULD start the query resolution timer and begin the iterative
+should start the query resolution timer and begin the iterative
 resolution process.  This timer bounds the work done by the resolver
 when contacting external authorities, and is commonly around 10 to 30
 seconds.  If this timer expires on an attempted lookup that is still
 being processed, the resolution effort is abandoned.
 
 If the answer has not been completely determined by the time the
-client response timer has elapsed, the resolver SHOULD then check its
+client response timer has elapsed, the resolver should then check its
 cache to see whether there is expired data that would satisfy the
 request.  If so, it adds that data to the response message with a TTL
 greater than 0 per {{standards-action}}.  The response is then sent to
@@ -262,7 +262,7 @@ the client while the resolver continues its attempt to refresh the
 data.
 
 When no authorities are able to be reached during a resolution
-attempt, the resolver SHOULD attempt to refresh the delegation and
+attempt, the resolver should attempt to refresh the delegation and
 restart the iterative lookup process with the remaining time on the
 query resolution timer. This resumption should be done only once
 during one resolution effort.
@@ -273,10 +273,9 @@ process. This timer is conceptually different from the maximum cache
 TTL that exists in many resolvers, the latter being a clamp on the
 value of TTLs as received from authoritative servers and recommended
 to be 7 days in the TTL definition above.  The maximum stale timer
-SHOULD be configurable, and defines the length of time after a record
-expires that it SHOULD be retained in the cache.  The suggested value
-is 7 days, which gives time for monitoring to notice the resolution
-problem and for human intervention to fix it.
+should be configurable, and defines the length of time after a record
+expires that it should be retained in the cache.  The suggested value
+is between 1 and 3 days.
 
 # Implementation Considerations
 
@@ -292,13 +291,21 @@ involved.
 The most obvious of these is the maximum stale timer. If this variable
 is too large it could cause excessive cache memory usage, but if it is
 too small, the serve-stale technique becomes less effective, as the
-record may not be in the cache to be used if needed.  Increased memory
-consumption could be mitigated by prioritizing removal of stale
-records over non-expired records during cache exhaustion.
-Implementations may also wish to consider whether to track the names
-in requests for their last time of use or their popularity, using that
-as an additional factor when considering cache eviction.  A feature to
-manually flush only stale records could also be useful.
+record may not be in the cache to be used if needed.  Shorter values,
+even less than a day, can effectively handle the vast majority of
+outages.  Longer values, as much as a week, give time for monitoring
+systems to notice a resolution problem and for human intervention to
+fix it; operational experience has been that sometimes the right
+people can be hard to track down and unfortunately slow to remedy the
+situation.
+
+Increased memory consumption could be mitigated by prioritizing
+removal of stale records over non-expired records during cache
+exhaustion.  Implementations may also wish to consider whether to
+track the names in requests for their last time of use or their
+popularity, using that as an additional factor when considering cache
+eviction.  A feature to manually flush only stale records could also
+be useful.
 
 The client response timer is another variable which deserves
 consideration. If this value is too short, there exists the risk that
