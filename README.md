@@ -8,12 +8,12 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: September 10, 2019                                       Google
-                                                          March 09, 2019
+Expires: October 18, 2019                                         Google
+                                                          April 16, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-04
+                    draft-ietf-dnsop-serve-stale-05
 
 Abstract
 
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 10, 2019.
+   This Internet-Draft will expire on October 18, 2019.
 
 Copyright Notice
 
