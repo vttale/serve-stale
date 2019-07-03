@@ -90,15 +90,6 @@ available. One of the motivations for serve-stale is to make the DNS
 more resilient to DoS attacks, and thereby make them less attractive
 as an attack vector.
 
---- note_Ed_note
-
-Text inside square brackets (\[\]) is additional background
-information, answers to frequently asked questions, general musings,
-etc.  They will be removed before publication.  This document is being
-collaborated on in GitHub at
-\<https://github.com/vttale/serve-stale\>.  The most recent
-version of the document, open issues, etc should all be available
-here.  The authors gratefully accept pull requests.
 
 --- middle
 
@@ -133,7 +124,7 @@ For a comprehensive treatment of DNS terms, please see {{?RFC7719}}.
 
 There are a number of reasons why an authoritative server may become
 unreachable, including Denial of Service (DoS) attacks, network
-issues, and so on.  If the recursive server is unable to contact the
+issues, and so on.  If a recursive server is unable to contact the
 authoritative servers for a query but still has relevant data that has
 aged past its TTL, that information can still be useful for generating
 an answer under the metaphorical assumption that "stale bread is
@@ -160,7 +151,7 @@ time to live."  This is again not {{RFC2119}}-normative language, but
 does convey the natural language connotation that data becomes
 unusable past TTL expiry.
 
-Several major recursive resolver operators currently use stale data
+Several recursive resolver packages and their operators currently use stale data
 for answers in some way, including Akamai (in three different resolver
 implementations), BIND, Knot, OpenDNS, and Unbound.  Apple MacOS can
 also use stale data as part of the Happy Eyeballs algorithms in
@@ -178,7 +169,7 @@ duration that the resource record MAY be cached before the source of
 the information MUST again be consulted.  Zero values are interpreted
 to mean that the RR can only be used for the transaction in progress,
 and should not be cached.  Values SHOULD be capped on the orders of
-days to weeks, with a recommended cap of 604,800 seconds. If the
+days to weeks, with a recommended cap of 604,800 seconds (seven days). If the
 data is unable to be authoritatively refreshed when the TTL expires,
 the record MAY be used as though it is unexpired.
 
@@ -187,7 +178,7 @@ positive, rather than 0, is a change from {{RFC2181}}.  Suggesting a
 cap of seven days, rather than the 68 years allowed by {{RFC2181}},
 reflects the current practice of major modern DNS resolvers.
 
-When returning a response containing stale records, the recursive
+When returning a response containing stale records, a recursive
 resolver MUST set the TTL of each expired record in the message to a
 value greater than 0, with 30 seconds RECOMMENDED.
 
@@ -200,12 +191,12 @@ any previous state intact.
 
 # Example Method
 
-There is conceivably more than one way a recursive resolver could
+There is more than one way a recursive resolver could
 responsibly implement this resiliency feature while still respecting
 the intent of the TTL as a signal for when data is to be refreshed.
 
 In this example method four notable timers drive considerations for
-the use of stale data, as follows:
+the use of stale data:
 
 * A client response timer, which is the maximum amount of time a
 recursive resolver should allow between the receipt of a resolution
@@ -225,14 +216,14 @@ effectively some kind of failure recheck timer.  The client
 response timer and maximum stale timer are new concepts for this
 mechanism.
 
-When a request is received by the recursive resolver, it should start
+When a request is received by a recursive resolver, it should start
 the client response timer.  This timer is used to avoid client
 timeouts.  It should be configurable, with a recommended value of 1.8
 seconds as being just under a common timeout value of 2 seconds while
 still giving the resolver a fair shot at resolving the name.
 
-The resolver then checks its cache for any unexpired data that
-satisfies the request and of course returns them if available.  If it
+The resolver then checks its cache for any unexpired records that
+satisfy the request and returns them if available.  If it
 finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it should immediately return the response without
 consulting the cache for expired records.  Typically this response
@@ -257,7 +248,7 @@ If the answer has not been completely determined by the time the
 client response timer has elapsed, the resolver should then check its
 cache to see whether there is expired data that would satisfy the
 request.  If so, it adds that data to the response message with a TTL
-greater than 0 per {{standards-action}}.  The response is then sent to
+greater than 0 (as specified in {{standards-action}}).  The response is then sent to
 the client while the resolver continues its attempt to refresh the
 data.
 
@@ -272,7 +263,7 @@ cache management and is independent of the query resolution
 process. This timer is conceptually different from the maximum cache
 TTL that exists in many resolvers, the latter being a clamp on the
 value of TTLs as received from authoritative servers and recommended
-to be 7 days in the TTL definition above.  The maximum stale timer
+to be seven days in the TTL definition in {{standards-action}}.  The maximum stale timer
 should be configurable, and defines the length of time after a record
 expires that it should be retained in the cache.  The suggested value
 is between 1 and 3 days.
@@ -364,8 +355,9 @@ NXDomain for a previously existing name might well be an error, it is
 not handled that way because there is no effective way to distinguish
 operator intent for legitimate cases versus error cases.
 
-During discussion in dnsop it was suggested that Refused from all
-authorities should be treated, from a serve-stale perspective, as
+During discussion in the IETF, it was suggested that if all auhorities
+return responses with RCODE of Refused
+should be treated, from a serve-stale perspective, as
 though it were equivalent to NXDomain because it represents an
 explicit signal to take down the zone from servers that still have the
 zone's delegation pointed to them.  Refused, however, is also
@@ -385,7 +377,7 @@ to the original intent of the design of the DNS and the behaviour
 expected by operators.  If stale data were to always be used
 immediately and then a cache refresh attempted after the client
 response has been sent, the resolver would frequently be sending data
-that it would have had no trouble refreshing.  As modern resolvers use
+that it would have had no trouble refreshing.  Because modern resolvers use
 techniques like pre-fetching and request coalescing for efficiency, it
 is not necessary that every client request needs to trigger a new
 lookup flow in the presence of stale data, but rather that a
@@ -445,7 +437,7 @@ that fail or experience abnormally long resolution times during an attack.
 
 # EDNS Option
 
-During the discussion of serve-stale in the IETF dnsop working group,
+During the discussion of serve-stale in the IETF,
 it was suggested that an EDNS option should be available to either
 explicitly opt-in to getting data that is possibly stale, or at least
 as a debugging tool to indicate when stale data has been used for a
@@ -454,8 +446,8 @@ response.
 The opt-in use case was rejected as the technique was meant to be
 immediately useful in improving DNS resiliency for all clients.
 
-The reporting case was ultimately also rejected as working group
-participants determined that even the simpler version of a proposed
+The reporting case was ultimately also rejected because
+even the simpler version of a proposed
 option was still too much bother to implement for too little perceived
 value.
 
@@ -473,16 +465,18 @@ records alive even after their authorities have gone away.  This
 potentially makes that easier, although without introducing a new
 risk.
 
-In {{CloudStrife}} it was demonstrated how stale DNS data, namely
+In {{CloudStrife}}, it was demonstrated how stale DNS data, namely
 hostnames pointing to addresses that are no longer in use by the owner
 of the name, can be used to co-opt security such as to get
 domain-validated certificates fraudulently issued to an attacker.
-While this RFC does not create a new vulnerability in this area, it
+While this document does not create a new vulnerability in this area, it
 does potentially enlarge the window in which such an attack could be
-made.  An obvious mitigation is that not only should a certificate
-authority not use a resolver that has this feature enabled, it should
-probably not use a caching resolver at all and instead fully look up
-each name freshly from the root.
+made.  A proposed mitigation is that certificate
+authorities should not use a resolver that is configured to serve stale data.
+Instead, certificate authorities should
+probably not use a caching resolver at all and instead use
+resolvers that do not cache, but fully look up
+each name starting at the DNS root for every name lookup.
 
 # Privacy Considerations
 
