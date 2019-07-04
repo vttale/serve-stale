@@ -151,10 +151,10 @@ time to live."  This is again not {{RFC2119}}-normative language, but
 does convey the natural language connotation that data becomes
 unusable past TTL expiry.
 
-Several recursive resolver packages and their operators currently use stale data
-for answers in some way, including Akamai (in three different resolver
-implementations), BIND, Knot, OpenDNS, and Unbound.  Apple MacOS can
-also use stale data as part of the Happy Eyeballs algorithms in
+Several recursive resolver operators currently use stale data for answers
+in some way, including Akamai. A number of recursive resolver packages 
+(including BIND, Know, OpenDNS, Unbound) provide options to use stale data. 
+Apple MacOS can also use stale data as part of the Happy Eyeballs algorithms in
 mDNSResponder.  The collective operational experience is that it
 provides significant benefit with minimal downside.
 
@@ -355,12 +355,11 @@ NXDomain for a previously existing name might well be an error, it is
 not handled that way because there is no effective way to distinguish
 operator intent for legitimate cases versus error cases.
 
-During discussion in the IETF, it was suggested that if all auhorities
-return responses with RCODE of Refused
-should be treated, from a serve-stale perspective, as
-though it were equivalent to NXDomain because it represents an
-explicit signal to take down the zone from servers that still have the
-zone's delegation pointed to them.  Refused, however, is also
+During discussion in the IETF, it was suggested that,
+if all authorities return responses with RCODE of Refused,
+it may be an explicit signal to take down the zone from
+servers that still have the zone's delegation pointed to them.
+Refused, however, is also
 overloaded to mean multiple possible failures which could represent
 transient configuration failures.  Operational experience has shown
 that purposely returning Refused is a poor way to achieve an
@@ -471,12 +470,9 @@ of the name, can be used to co-opt security such as to get
 domain-validated certificates fraudulently issued to an attacker.
 While this document does not create a new vulnerability in this area, it
 does potentially enlarge the window in which such an attack could be
-made.  A proposed mitigation is that certificate
-authorities should not use a resolver that is configured to serve stale data.
-Instead, certificate authorities should
-probably not use a caching resolver at all and instead use
-resolvers that do not cache, but fully look up
-each name starting at the DNS root for every name lookup.
+made.  A proposed mitigation is that certificate authorities should fully
+look up each name starting at the DNS root for every name lookup. 
+Alternatively, CAs should use a resolver that is not serving stale data.
 
 # Privacy Considerations
 
