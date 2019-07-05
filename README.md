@@ -160,15 +160,15 @@ Table of Contents
    The definition of TTL in [RFC1035] Sections 3.2.1 and 4.1.3 is
    amended to read:
 
-   TTL  a 32-bit unsigned integer number of seconds that specifies the
+   TTL:  a 32-bit unsigned integer number of seconds that specifies the
       duration that the resource record MAY be cached before the source
       of the information MUST again be consulted.  Zero values are
       interpreted to mean that the RR can only be used for the
       transaction in progress, and should not be cached.  Values SHOULD
-      be capped on the orders of days to weeks, with a recommended cap
-      of 604,800 seconds.  If the data is unable to be authoritatively
-      refreshed when the TTL expires, the record MAY be used as though
-      it is unexpired.
+      be capped to 604,800 seconds, and implementations SHOULD allow
+      lower values to be configured by operators.  
+      If the data is unable to be authoritatively refreshed when the TTL
+      expires, the record MAY be used as though it is unexpired.
 
    Interpreting values which have the high order bit set as being
    positive, rather than 0, is a change from [RFC2181].  Suggesting a
@@ -177,7 +177,9 @@ Table of Contents
 
    When returning a response containing stale records, the recursive
    resolver MUST set the TTL of each expired record in the message to a
-   value greater than 0, with 30 seconds RECOMMENDED.
+   value greater than 0, with 30 seconds RECOMMENDED. Implementations
+   SHOULD allow values above 0, but SHOULD NOT allow values greater
+   than 600 seconds.
 
    Answers from authoritative servers that have a DNS Response Code of
    either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
@@ -485,8 +487,8 @@ Table of Contents
 14.  Acknowledgements
 
    The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-   Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
-   Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
+   Paul Hoffman, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura,
+   Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
    for their review and feedback.
 
 15.  References
