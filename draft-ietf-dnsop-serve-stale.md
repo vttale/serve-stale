@@ -395,7 +395,7 @@ The continuing prohibition against using data with a 0 second TTL
 beyond the current transaction explicitly extends to it being unusable
 even for stale fallback, as it is not to be cached at all.
 
-Be aware that Canonical Name (CNAME) and DNAME {{RFC6672}} records mingled in the expired
+Be aware that Canonical Name (CNAME) and DNAME {{?RFC6672}} records mingled in the expired
 cache with other records at the same owner name can cause surprising
 results.  This was observed with an initial implementation in BIND
 when a hostname changed from having an IPv4 Address (A) record to a

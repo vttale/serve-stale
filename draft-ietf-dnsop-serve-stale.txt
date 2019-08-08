@@ -437,11 +437,11 @@ Internet-Draft               DNS Serve Stale                 August 2019
    beyond the current transaction explicitly extends to it being
    unusable even for stale fallback, as it is not to be cached at all.
 
-   Be aware that Canonical Name (CNAME) records mingled in the expired
-   cache with other records at the same owner name can cause surprising
-   results.  This was observed with an initial implementation in BIND
-   when a hostname changed from having an IPv4 Address (A) record to a
-   CNAME.  The version of BIND being used did not evict other types in
+   Be aware that Canonical Name (CNAME) and DNAME [RFC6672] records
+   mingled in the expired cache with other records at the same owner
+   name can cause surprising results.  This was observed with an initial
+   implementation in BIND when a hostname changed from having an IPv4
+   Address (A) record to a CNAME.  The version of BIND being used did
 
 
 
@@ -450,10 +450,10 @@ Lawrence, et al.        Expires February 9, 2020                [Page 8]
 Internet-Draft               DNS Serve Stale                 August 2019
 
 
-   the cache when a CNAME was received, which in normal operations is
-   not a significant issue.  However, after both records expired and the
-   authorities became unavailable, the fallback to stale answers
-   returned the older A instead of the newer CNAME.
+   not evict other types in the cache when a CNAME was received, which
+   in normal operations is not a significant issue.  However, after both
+   records expired and the authorities became unavailable, the fallback
+   to stale answers returned the older A instead of the newer CNAME.
 
 8.  Implementation Status
 
@@ -618,6 +618,10 @@ Lawrence, et al.        Expires February 9, 2020               [Page 11]
 Internet-Draft               DNS Serve Stale                 August 2019
 
 
+   [RFC6672]  Rose, S. and W. Wijngaards, "DNAME Redirection in the
+              DNS", RFC 6672, DOI 10.17487/RFC6672, June 2012,
+              <https://www.rfc-editor.org/info/rfc6672>.
+
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
               Terminology", RFC 7719, DOI 10.17487/RFC7719, December
               2015, <https://www.rfc-editor.org/info/rfc7719>.
@@ -643,10 +647,6 @@ Authors' Addresses
    Google
 
    Email: puneets@google.com
-
-
-
-
 
 
 
