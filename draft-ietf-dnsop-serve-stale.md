@@ -1,8 +1,8 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-ietf-dnsop-serve-stale-05
-date: 2019-04-16
+docname: draft-ietf-dnsop-serve-stale-06
+date:  2019-08-08
 
 ipr: trust200902
 area: Internet
@@ -395,7 +395,7 @@ The continuing prohibition against using data with a 0 second TTL
 beyond the current transaction explicitly extends to it being unusable
 even for stale fallback, as it is not to be cached at all.
 
-Be aware that Canonical Name (CNAME) records mingled in the expired
+Be aware that Canonical Name (CNAME) and DNAME {{RFC6672}} records mingled in the expired
 cache with other records at the same owner name can cause surprising
 results.  This was observed with an initial implementation in BIND
 when a hostname changed from having an IPv4 Address (A) record to a
@@ -492,5 +492,9 @@ The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
 Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
 Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
 for their review and feedback.
+
+
+
+Paul Hoffman deserves special thanks for submitting a number of Pull Requests.
 
 --- back
