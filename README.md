@@ -8,12 +8,12 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035 (if approved)                              W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: October 18, 2019                                         Google
-                                                          April 16, 2019
+Expires: February 9, 2020                                         Google
+                                                         August 08, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-05
+                    draft-ietf-dnsop-serve-stale-06
 
 Abstract
 
@@ -27,16 +27,6 @@ Abstract
    DoS attacks, and thereby make them less attractive as an attack
    vector.
 
-Ed note
-
-   Text inside square brackets ([]) is additional background
-   information, answers to frequently asked questions, general musings,
-   etc.  They will be removed before publication.  This document is
-   being collaborated on in GitHub at <https://github.com/vttale/serve-
-   stale>.  The most recent version of the document, open issues, etc
-   should all be available here.  The authors gratefully accept pull
-   requests.
-
 Status of This Memo
 
    This Internet-Draft is submitted in full conformance with the
@@ -45,14 +35,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 18, 2019.
+   This Internet-Draft will expire on February 9, 2020.
 
 Copyright Notice
 
@@ -61,7 +51,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -121,7 +111,7 @@ Table of Contents
 
    There are a number of reasons why an authoritative server may become
    unreachable, including Denial of Service (DoS) attacks, network
-   issues, and so on.  If the recursive server is unable to contact the
+   issues, and so on.  If a recursive server is unable to contact the
    authoritative servers for a query but still has relevant data that
    has aged past its TTL, that information can still be useful for
    generating an answer under the metaphorical assumption that "stale
@@ -148,38 +138,37 @@ Table of Contents
    language, but does convey the natural language connotation that data
    becomes unusable past TTL expiry.
 
-   Several major recursive resolver operators currently use stale data
-   for answers in some way, including Akamai (in three different
-   resolver implementations), BIND, Knot, OpenDNS, and Unbound.  Apple
-   MacOS can also use stale data as part of the Happy Eyeballs
-   algorithms in mDNSResponder.  The collective operational experience
-   is that it provides significant benefit with minimal downside.
+   Several recursive resolver operators currently use stale data for
+   answers in some way, including Akamai.  A number of recursive
+   resolver packages (including BIND, Know, OpenDNS, Unbound) provide
+   options to use stale data.  Apple MacOS can also use stale data as
+   part of the Happy Eyeballs algorithms in mDNSResponder.  The
+   collective operational experience is that it provides significant
+   benefit with minimal downside.
 
 4.  Standards Action
 
    The definition of TTL in [RFC1035] Sections 3.2.1 and 4.1.3 is
    amended to read:
 
-   TTL:  a 32-bit unsigned integer number of seconds that specifies the
+   TTL  a 32-bit unsigned integer number of seconds that specifies the
       duration that the resource record MAY be cached before the source
       of the information MUST again be consulted.  Zero values are
       interpreted to mean that the RR can only be used for the
       transaction in progress, and should not be cached.  Values SHOULD
-      be capped to 604,800 seconds, and implementations SHOULD allow
-      lower values to be configured by operators.  
-      If the data is unable to be authoritatively refreshed when the TTL
-      expires, the record MAY be used as though it is unexpired.
+      be capped on the orders of days to weeks, with a recommended cap
+      of 604,800 seconds (seven days).  If the data is unable to be
+      authoritatively refreshed when the TTL expires, the record MAY be
+      used as though it is unexpired.
 
    Interpreting values which have the high order bit set as being
    positive, rather than 0, is a change from [RFC2181].  Suggesting a
    cap of seven days, rather than the 68 years allowed by [RFC2181],
    reflects the current practice of major modern DNS resolvers.
 
-   When returning a response containing stale records, the recursive
+   When returning a response containing stale records, a recursive
    resolver MUST set the TTL of each expired record in the message to a
-   value greater than 0, with 30 seconds RECOMMENDED. Implementations
-   SHOULD allow values above 0, but SHOULD NOT allow values greater
-   than 600 seconds.
+   value greater than 0, with 30 seconds RECOMMENDED.
 
    Answers from authoritative servers that have a DNS Response Code of
    either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
@@ -190,12 +179,12 @@ Table of Contents
 
 5.  Example Method
 
-   There is conceivably more than one way a recursive resolver could
-   responsibly implement this resiliency feature while still respecting
-   the intent of the TTL as a signal for when data is to be refreshed.
+   There is more than one way a recursive resolver could responsibly
+   implement this resiliency feature while still respecting the intent
+   of the TTL as a signal for when data is to be refreshed.
 
    In this example method four notable timers drive considerations for
-   the use of stale data, as follows:
+   the use of stale data:
 
    o  A client response timer, which is the maximum amount of time a
       recursive resolver should allow between the receipt of a
@@ -214,19 +203,19 @@ Table of Contents
    effectively some kind of failure recheck timer.  The client response
    timer and maximum stale timer are new concepts for this mechanism.
 
-   When a request is received by the recursive resolver, it should start
+   When a request is received by a recursive resolver, it should start
    the client response timer.  This timer is used to avoid client
    timeouts.  It should be configurable, with a recommended value of 1.8
    seconds as being just under a common timeout value of 2 seconds while
    still giving the resolver a fair shot at resolving the name.
 
-   The resolver then checks its cache for any unexpired data that
-   satisfies the request and of course returns them if available.  If it
-   finds no relevant unexpired data and the Recursion Desired flag is
-   not set in the request, it should immediately return the response
-   without consulting the cache for expired records.  Typically this
-   response would be a referral to authoritative nameservers covering
-   the zone, but the specifics are implementation dependent.
+   The resolver then checks its cache for any unexpired records that
+   satisfy the request and returns them if available.  If it finds no
+   relevant unexpired data and the Recursion Desired flag is not set in
+   the request, it should immediately return the response without
+   consulting the cache for expired records.  Typically this response
+   would be a referral to authoritative nameservers covering the zone,
+   but the specifics are implementation dependent.
 
    If iterative lookups will be done, then the failure recheck timer is
    consulted.  Attempts to refresh from non-responsive or otherwise
@@ -246,8 +235,9 @@ Table of Contents
    client response timer has elapsed, the resolver should then check its
    cache to see whether there is expired data that would satisfy the
    request.  If so, it adds that data to the response message with a TTL
-   greater than 0 per Section 4.  The response is then sent to the
-   client while the resolver continues its attempt to refresh the data.
+   greater than 0 (as specified in Section 4).  The response is then
+   sent to the client while the resolver continues its attempt to
+   refresh the data.
 
    When no authorities are able to be reached during a resolution
    attempt, the resolver should attempt to refresh the delegation and
@@ -259,11 +249,11 @@ Table of Contents
    cache management and is independent of the query resolution process.
    This timer is conceptually different from the maximum cache TTL that
    exists in many resolvers, the latter being a clamp on the value of
-   TTLs as received from authoritative servers and recommended to be 7
-   days in the TTL definition above.  The maximum stale timer should be
-   configurable, and defines the length of time after a record expires
-   that it should be retained in the cache.  The suggested value is
-   between 1 and 3 days.
+   TTLs as received from authoritative servers and recommended to be
+   seven days in the TTL definition in Section 4.  The maximum stale
+   timer should be configurable, and defines the length of time after a
+   record expires that it should be retained in the cache.  The
+   suggested value is between 1 and 3 days.
 
 6.  Implementation Considerations
 
@@ -352,9 +342,8 @@ Table of Contents
    to distinguish operator intent for legitimate cases versus error
    cases.
 
-   During discussion in dnsop it was suggested that Refused from all
-   authorities should be treated, from a serve-stale perspective, as
-   though it were equivalent to NXDomain because it represents an
+   During discussion in the IETF, it was suggested that, if all
+   authorities return responses with RCODE of Refused, it may be an
    explicit signal to take down the zone from servers that still have
    the zone's delegation pointed to them.  Refused, however, is also
    overloaded to mean multiple possible failures which could represent
@@ -372,8 +361,8 @@ Table of Contents
    expected by operators.  If stale data were to always be used
    immediately and then a cache refresh attempted after the client
    response has been sent, the resolver would frequently be sending data
-   that it would have had no trouble refreshing.  As modern resolvers
-   use techniques like pre-fetching and request coalescing for
+   that it would have had no trouble refreshing.  Because modern
+   resolvers use techniques like pre-fetching and request coalescing for
    efficiency, it is not necessary that every client request needs to
    trigger a new lookup flow in the presence of stale data, but rather
    that a good-faith effort has been recently made to refresh the stale
@@ -391,15 +380,15 @@ Table of Contents
    beyond the current transaction explicitly extends to it being
    unusable even for stale fallback, as it is not to be cached at all.
 
-   Be aware that Canonical Name (CNAME) records mingled in the expired
-   cache with other records at the same owner name can cause surprising
-   results.  This was observed with an initial implementation in BIND
-   when a hostname changed from having an IPv4 Address (A) record to a
-   CNAME.  The version of BIND being used did not evict other types in
-   the cache when a CNAME was received, which in normal operations is
-   not a significant issue.  However, after both records expired and the
-   authorities became unavailable, the fallback to stale answers
-   returned the older A instead of the newer CNAME.
+   Be aware that Canonical Name (CNAME) and DNAME [RFC6672] records
+   mingled in the expired cache with other records at the same owner
+   name can cause surprising results.  This was observed with an initial
+   implementation in BIND when a hostname changed from having an IPv4
+   Address (A) record to a CNAME.  The version of BIND being used did
+   not evict other types in the cache when a CNAME was received, which
+   in normal operations is not a significant issue.  However, after both
+   records expired and the authorities became unavailable, the fallback
+   to stale answers returned the older A instead of the newer CNAME.
 
 8.  Implementation Status
 
@@ -433,19 +422,17 @@ Table of Contents
 
 9.  EDNS Option
 
-   During the discussion of serve-stale in the IETF dnsop working group,
-   it was suggested that an EDNS option should be available to either
-   explicitly opt-in to getting data that is possibly stale, or at least
-   as a debugging tool to indicate when stale data has been used for a
-   response.
+   During the discussion of serve-stale in the IETF, it was suggested
+   that an EDNS option should be available to either explicitly opt-in
+   to getting data that is possibly stale, or at least as a debugging
+   tool to indicate when stale data has been used for a response.
 
    The opt-in use case was rejected as the technique was meant to be
    immediately useful in improving DNS resiliency for all clients.
 
-   The reporting case was ultimately also rejected as working group
-   participants determined that even the simpler version of a proposed
-   option was still too much bother to implement for too little
-   perceived value.
+   The reporting case was ultimately also rejected because even the
+   simpler version of a proposed option was still too much bother to
+   implement for too little perceived value.
 
 10.  Security Considerations
 
@@ -461,16 +448,16 @@ Table of Contents
    potentially makes that easier, although without introducing a new
    risk.
 
-   In [CloudStrife] it was demonstrated how stale DNS data, namely
+   In [CloudStrife], it was demonstrated how stale DNS data, namely
    hostnames pointing to addresses that are no longer in use by the
    owner of the name, can be used to co-opt security such as to get
    domain-validated certificates fraudulently issued to an attacker.
-   While this RFC does not create a new vulnerability in this area, it
-   does potentially enlarge the window in which such an attack could be
-   made.  An obvious mitigation is that not only should a certificate
-   authority not use a resolver that has this feature enabled, it should
-   probably not use a caching resolver at all and instead fully look up
-   each name freshly from the root.
+   While this document does not create a new vulnerability in this area,
+   it does potentially enlarge the window in which such an attack could
+   be made.  A proposed mitigation is that certificate authorities
+   should fully look up each name starting at the DNS root for every
+   name lookup.  Alternatively, CAs should use a resolver that is not
+   serving stale data.
 
 11.  Privacy Considerations
 
@@ -487,9 +474,12 @@ Table of Contents
 14.  Acknowledgements
 
    The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-   Paul Hoffman, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura,
-   Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
+   Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
+   Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
    for their review and feedback.
+
+   Paul Hoffman deserves special thanks for submitting a number of Pull
+   Requests.
 
 15.  References
 
@@ -505,8 +495,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -528,8 +518,8 @@ Table of Contents
               Domain-Validated Certificates", ACM 2018 Applied
               Networking Research Workshop, DOI 10.1145/3232755.3232859,
               July 2018, <https://www.ndss-symposium.org/wp-
-              content/uploads/2018/02/ndss2018_06A-
-              4_Borgolte_paper.pdf>.
+              content/uploads/2018/02/
+              ndss2018_06A-4_Borgolte_paper.pdf>.
 
    [DikeBreaks]
               Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.
@@ -537,6 +527,10 @@ Table of Contents
               During DDos", ACM 2018 Internet Measurement Conference,
               DOI 10.1145/3278532.3278534, October 2018,
               <https://www.isi.edu/~johnh/PAPERS/Moura18b.pdf>.
+
+   [RFC6672]  Rose, S. and W. Wijngaards, "DNAME Redirection in the
+              DNS", RFC 6672, DOI 10.17487/RFC6672, June 2012,
+              <https://www.rfc-editor.org/info/rfc6672>.
 
    [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
               Terminology", RFC 7719, DOI 10.17487/RFC7719, December
