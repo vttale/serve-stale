@@ -1,15 +1,15 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-ietf-dnsop-serve-stale-06
-date:  2019-08-08
+docname: draft-ietf-dnsop-serve-stale-07
+date:  2019-08-26
 
 ipr: trust200902
 area: Internet
 wg: DNSOP Working Group
 kw: Internet-Draft
 cat: std
-updates: 1034, 1035
+updates: 1034, 1035, 2181
 
 coding: us-ascii
 pi:
@@ -82,13 +82,14 @@ informative:
 
 This draft defines a method (serve-stale) for recursive resolvers to
 use stale DNS data to avoid outages when authoritative nameservers
-cannot be reached to refresh expired data.  It updates the definition
-of TTL from {{!RFC1034}}, {{!RFC1035}}, and {{!RFC2181}} to make it
-clear that data can be kept in the cache beyond the TTL expiry and
-used for responses when a refreshed answer is not readily
-available. One of the motivations for serve-stale is to make the DNS
-more resilient to DoS attacks, and thereby make them less attractive
-as an attack vector.
+cannot be reached to refresh expired data. One of the motivations 
+for serve-stale is to make the DNS more resilient to DoS attacks,
+and thereby make them less attractive as an attack vector.
+This document updates the definitions of TTL from RFC 1034
+and RFC 1035 so that data can be kept in the cache beyond 
+the TTL expiry, and also updates RFC 2181 by interpreting
+values with the high order bit set as being positive, rather
+than 0, and also suggests a cap of 7 days.
 
 
 --- middle
@@ -110,6 +111,12 @@ those servers would return is typically unchanged.
 We describe a method below for this use of stale data, balancing the
 competing needs of resiliency and freshness.
 
+This document updates the definition of TTL from {{!RFC1035}},
+to make it clear that data can  be kept in the cache beyond 
+the TTL expiry and used for responses when a refreshed answer 
+is not readily available. The concept is described in 
+{{!RFC1034}} and further clarified in {{!RFC2181}}.
+
 # Terminology
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -118,7 +125,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
 capitals, as shown here.
 
-For a comprehensive treatment of DNS terms, please see {{?RFC7719}}.
+For a comprehensive treatment of DNS terms, please see {{?RFC8499}}.
 
 # Background
 
