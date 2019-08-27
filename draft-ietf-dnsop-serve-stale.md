@@ -111,11 +111,11 @@ those servers would return is typically unchanged.
 We describe a method below for this use of stale data, balancing the
 competing needs of resiliency and freshness.
 
-This document updates the definition of TTL from {{!RFC1035}},
-to make it clear that data can  be kept in the cache beyond 
-the TTL expiry and used for responses when a refreshed answer 
-is not readily available. The concept is described in 
-{{!RFC1034}} and further clarified in {{!RFC2181}}.
+This document updates the definitions of TTL from {{!RFC1034}}
+and {{!RFC1035}} so that data can be kept in the cache beyond 
+the TTL expiry, and also updates {{!RFC2181}} by interpreting
+values with the high order bit set as being positive, rather
+than 0, and also suggests a cap of 7 days.
 
 # Terminology
 
