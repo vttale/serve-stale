@@ -6,26 +6,26 @@
 
 DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
-Updates: 1034, 1035 (if approved)                              W. Kumari
+Updates: 1034, 1035, 2181 (if approved)                        W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: February 9, 2020                                         Google
-                                                         August 08, 2019
+Expires: March 21, 2020                                           Google
+                                                      September 18, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-06
+                    draft-ietf-dnsop-serve-stale-08
 
 Abstract
 
    This draft defines a method (serve-stale) for recursive resolvers to
    use stale DNS data to avoid outages when authoritative nameservers
-   cannot be reached to refresh expired data.  It updates the definition
-   of TTL from [RFC1034], [RFC1035], and [RFC2181] to make it clear that
-   data can be kept in the cache beyond the TTL expiry and used for
-   responses when a refreshed answer is not readily available.  One of
-   the motivations for serve-stale is to make the DNS more resilient to
-   DoS attacks, and thereby make them less attractive as an attack
-   vector.
+   cannot be reached to refresh expired data.  One of the motivations
+   for serve-stale is to make the DNS more resilient to DoS attacks, and
+   thereby make them less attractive as an attack vector.  This document
+   updates the definitions of TTL from RFC 1034 and RFC 1035 so that
+   data can be kept in the cache beyond the TTL expiry, updates RFC 2181
+   by interpreting values with the high order bit set as being positive,
+   rather than 0, and suggests a cap of 7 days.
 
 Status of This Memo
 
@@ -35,14 +35,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at https://datatracker.ietf.org/drafts/current/.
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on February 9, 2020.
+   This Internet-Draft will expire on March 21, 2020.
 
 Copyright Notice
 
@@ -51,7 +51,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -87,15 +87,21 @@ Table of Contents
    record can be used before it must be discarded, based on its
    description and usage in [RFC1035] and clarifications in [RFC2181].
 
-   This document proposes that the definition of the TTL be explicitly
-   expanded to allow for expired data to be used in the exceptional
-   circumstance that a recursive resolver is unable to refresh the
-   information.  It is predicated on the observation that authoritative
-   answer unavailability can cause outages even when the underlying data
-   those servers would return is typically unchanged.
+   This document expands the definition of the TTL to explicitly allow
+   for expired data to be used in the exceptional circumstance that a
+   recursive resolver is unable to refresh the information.  It is
+   predicated on the observation that authoritative answer
+   unavailability can cause outages even when the underlying data those
+   servers would return is typically unchanged.
 
    We describe a method below for this use of stale data, balancing the
    competing needs of resiliency and freshness.
+
+   This document updates the definitions of TTL from [RFC1034] and
+   [RFC1035] so that data can be kept in the cache beyond the TTL
+   expiry, and also updates [RFC2181] by interpreting values with the
+   high order bit set as being positive, rather than 0, and also
+   suggests a cap of 7 days.
 
 2.  Terminology
 
@@ -105,7 +111,7 @@ Table of Contents
    14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   For a comprehensive treatment of DNS terms, please see [RFC7719].
+   For a comprehensive treatment of DNS terms, please see [RFC8499].
 
 3.  Background
 
@@ -134,17 +140,17 @@ Table of Contents
    capped.  (It also has the curious suggestion that a value in the
    range 2147483648 to 4294967295 should be treated as zero.)  It closes
    that section by noting, "The TTL specifies a maximum time to live,
-   not a mandatory time to live."  This is again not [RFC2119]-normative
-   language, but does convey the natural language connotation that data
-   becomes unusable past TTL expiry.
+   not a mandatory time to live."  This wording again does not contain
+   BCP 14 [RFC2119] key words, but does convey the natural language
+   connotation that data becomes unusable past TTL expiry.
 
-   Several recursive resolver operators currently use stale data for
-   answers in some way, including Akamai.  A number of recursive
-   resolver packages (including BIND, Know, OpenDNS, Unbound) provide
-   options to use stale data.  Apple MacOS can also use stale data as
-   part of the Happy Eyeballs algorithms in mDNSResponder.  The
-   collective operational experience is that it provides significant
-   benefit with minimal downside.
+   Several recursive resolver operators, including Akamai, currently use
+   stale data for answers in some way.  A number of recursive resolver
+   packages (including BIND, Knot, OpenDNS, Unbound) provide options to
+   use stale data.  Apple MacOS can also use stale data as part of the
+   Happy Eyeballs algorithms in mDNSResponder.  The collective
+   operational experience is that using stale data can provide
+   significant benefit with minimal downside.
 
 4.  Standards Action
 
@@ -159,7 +165,8 @@ Table of Contents
       be capped on the orders of days to weeks, with a recommended cap
       of 604,800 seconds (seven days).  If the data is unable to be
       authoritatively refreshed when the TTL expires, the record MAY be
-      used as though it is unexpired.
+      used as though it is unexpired.  See the Section 5 and Section 6
+      sections for details.
 
    Interpreting values which have the high order bit set as being
    positive, rather than 0, is a change from [RFC2181].  Suggesting a
@@ -168,14 +175,16 @@ Table of Contents
 
    When returning a response containing stale records, a recursive
    resolver MUST set the TTL of each expired record in the message to a
-   value greater than 0, with 30 seconds RECOMMENDED.
+   value greater than 0, with a RECOMMENDED value of 30 seconds.  See
+   Section 6 for explanation.
 
    Answers from authoritative servers that have a DNS Response Code of
    either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
    bit set MUST be considered to have refreshed the data at the
    resolver.  Answers from authoritative servers that have any other
    response code SHOULD be considered a failure to refresh the data and
-   therefor leave any previous state intact.
+   therefor leave any previous state intact.  See Section 6 for a
+   discussion.
 
 5.  Example Method
 
@@ -215,7 +224,7 @@ Table of Contents
    the request, it should immediately return the response without
    consulting the cache for expired records.  Typically this response
    would be a referral to authoritative nameservers covering the zone,
-   but the specifics are implementation dependent.
+   but the specifics are implementation-dependent.
 
    If iterative lookups will be done, then the failure recheck timer is
    consulted.  Attempts to refresh from non-responsive or otherwise
@@ -324,11 +333,11 @@ Table of Contents
 
    The directive in Section 4 that only NoError and NXDomain responses
    should invalidate any previously associated answer stems from the
-   fact that no other RCODEs which a resolver normally encounters makes
+   fact that no other RCODEs that a resolver normally encounters make
    any assertions regarding the name in the question or any data
    associated with it.  This comports with existing resolver behavior
    where a failed lookup (say, during pre-fetching) doesn't impact the
-   existing cache state.  Some authoritative servers operators have said
+   existing cache state.  Some authoritative server operators have said
    that they would prefer stale answers to be used in the event that
    their servers are responding with errors like ServFail instead of
    giving true authoritative answers.  Implementers MAY decide to return
@@ -438,15 +447,22 @@ Table of Contents
 
    The most obvious security issue is the increased likelihood of DNSSEC
    validation failures when using stale data because signatures could be
-   returned outside their validity period.  This would only be an issue
-   if the authoritative servers are unreachable, the only time the
-   techniques in this document are used, and thus does not introduce a
-   new failure in place of what would have otherwise been success.
+   returned outside their validity period.  Stale negative records can
+   increase the time window where newly published TLSA or DS RRs may not
+   be used due to cached NSEC or NSEC3 records.  These scenarios would
+   only be an issue if the authoritative servers are unreachable, the
+   only time the techniques in this document are used, and thus does not
+   introduce a new failure in place of what would have otherwise been
+   success.
 
    Additionally, bad actors have been known to use DNS caches to keep
-   records alive even after their authorities have gone away.  This
-   potentially makes that easier, although without introducing a new
-   risk.
+   records alive even after their authorities have gone away.  The serve
+   stale feature potentially makes the attack easier, although without
+   introducing a new risk.  In addition, attackers could combine this
+   with a DDoS attack on authoritative servers with the explicit intent
+   of having stale information cached for longer.  But if attackers have
+   this capacity, they probably could do much worse than prolonging the
+   life of old data.
 
    In [CloudStrife], it was demonstrated how stale DNS data, namely
    hostnames pointing to addresses that are no longer in use by the
@@ -495,8 +511,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -518,8 +534,8 @@ Table of Contents
               Domain-Validated Certificates", ACM 2018 Applied
               Networking Research Workshop, DOI 10.1145/3232755.3232859,
               July 2018, <https://www.ndss-symposium.org/wp-
-              content/uploads/2018/02/
-              ndss2018_06A-4_Borgolte_paper.pdf>.
+              content/uploads/2018/02/ndss2018_06A-
+              4_Borgolte_paper.pdf>.
 
    [DikeBreaks]
               Moura, G., Heidemann, J., Mueller, M., Schmidt, R., and M.
@@ -532,9 +548,9 @@ Table of Contents
               DNS", RFC 6672, DOI 10.17487/RFC6672, June 2012,
               <https://www.rfc-editor.org/info/rfc6672>.
 
-   [RFC7719]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
-              Terminology", RFC 7719, DOI 10.17487/RFC7719, December
-              2015, <https://www.rfc-editor.org/info/rfc7719>.
+   [RFC8499]  Hoffman, P., Sullivan, A., and K. Fujiwara, "DNS
+              Terminology", BCP 219, RFC 8499, DOI 10.17487/RFC8499,
+              January 2019, <https://www.rfc-editor.org/info/rfc8499>.
 
 Authors' Addresses
 

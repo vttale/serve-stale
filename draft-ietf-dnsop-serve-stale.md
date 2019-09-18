@@ -2,7 +2,7 @@
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
 docname: draft-ietf-dnsop-serve-stale-08
-date:  2019-09-17
+date:  2019-09-18
 
 ipr: trust200902
 area: Internet
