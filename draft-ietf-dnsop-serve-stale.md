@@ -1,8 +1,8 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-ietf-dnsop-serve-stale-07
-date:  2019-08-30
+docname: draft-ietf-dnsop-serve-stale-08
+date:  2019-09-17
 
 ipr: trust200902
 area: Internet
@@ -82,14 +82,14 @@ informative:
 
 This draft defines a method (serve-stale) for recursive resolvers to
 use stale DNS data to avoid outages when authoritative nameservers
-cannot be reached to refresh expired data. One of the motivations 
+cannot be reached to refresh expired data. One of the motivations
 for serve-stale is to make the DNS more resilient to DoS attacks,
 and thereby make them less attractive as an attack vector.
 This document updates the definitions of TTL from RFC 1034
-and RFC 1035 so that data can be kept in the cache beyond 
-the TTL expiry, and also updates RFC 2181 by interpreting
+and RFC 1035 so that data can be kept in the cache beyond
+the TTL expiry, updates RFC 2181 by interpreting
 values with the high order bit set as being positive, rather
-than 0, and also suggests a cap of 7 days.
+than 0, and suggests a cap of 7 days.
 
 
 --- middle
@@ -101,8 +101,8 @@ understood to represent the maximum number of seconds that a record
 can be used before it must be discarded, based on its description and
 usage in {{!RFC1035}} and clarifications in {{!RFC2181}}.
 
-This document proposes that the definition of the TTL be explicitly
-expanded to allow for expired data to be used in the exceptional
+This document expands the definition of the TTL
+to explicitly allow for expired data to be used in the exceptional
 circumstance that a recursive resolver is unable to refresh the
 information.  It is predicated on the observation that authoritative
 answer unavailability can cause outages even when the underlying data
@@ -154,16 +154,16 @@ values and the possibility that very large values should be capped. (It
 also has the curious suggestion that a value in the range 2147483648
 to 4294967295 should be treated as zero.)  It closes that section by
 noting, "The TTL specifies a maximum time to live, not a mandatory
-time to live."  This is again not {{RFC2119}}-normative language, but
-does convey the natural language connotation that data becomes
+time to live."  This wording again does not contain BCP 14  {{!RFC2119}}
+key words, but does convey the natural language connotation that data becomes
 unusable past TTL expiry.
 
-Several recursive resolver operators currently use stale data for answers
-in some way, including Akamai. A number of recursive resolver packages 
-(including BIND, Know, OpenDNS, Unbound) provide options to use stale data. 
+Several recursive resolver operators, including Akamai, currently use stale
+data for answers in some way. A number of recursive resolver packages
+(including BIND, Knot, OpenDNS, Unbound) provide options to use stale data.
 Apple MacOS can also use stale data as part of the Happy Eyeballs algorithms in
-mDNSResponder.  The collective operational experience is that it
-provides significant benefit with minimal downside.
+mDNSResponder.  The collective operational experience is that using stale data
+can provide significant benefit with minimal downside.
 
 # Standards Action
 
@@ -178,7 +178,8 @@ to mean that the RR can only be used for the transaction in progress,
 and should not be cached.  Values SHOULD be capped on the orders of
 days to weeks, with a recommended cap of 604,800 seconds (seven days). If the
 data is unable to be authoritatively refreshed when the TTL expires,
-the record MAY be used as though it is unexpired.
+the record MAY be used as though it is unexpired. See the {{example-method}}
+and {{implementation-considerations}} sections for details.
 
 Interpreting values which have the high order bit set as being
 positive, rather than 0, is a change from {{RFC2181}}.  Suggesting a
@@ -187,14 +188,16 @@ reflects the current practice of major modern DNS resolvers.
 
 When returning a response containing stale records, a recursive
 resolver MUST set the TTL of each expired record in the message to a
-value greater than 0, with 30 seconds RECOMMENDED.
+value greater than 0, with a RECOMMENDED value of 30 seconds. See
+{{implementation-considerations}} for explanation.
 
 Answers from authoritative servers that have a DNS Response Code of
 either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
 bit set MUST be considered to have refreshed the data at the resolver.
 Answers from authoritative servers that have any other response code
 SHOULD be considered a failure to refresh the data and therefor leave
-any previous state intact.
+any previous state intact. See {{implementation-considerations}} for
+a discussion.
 
 # Example Method
 
@@ -235,7 +238,7 @@ finds no relevant unexpired data and the Recursion Desired flag is not
 set in the request, it should immediately return the response without
 consulting the cache for expired records.  Typically this response
 would be a referral to authoritative nameservers covering the zone,
-but the specifics are implementation dependent.
+but the specifics are implementation-dependent.
 
 If iterative lookups will be done, then the failure recheck timer is
 consulted.  Attempts to refresh from non-responsive or otherwise
@@ -345,11 +348,11 @@ previously looked up.
 
 The directive in {{standards-action}} that only NoError and NXDomain
 responses should invalidate any previously associated answer stems
-from the fact that no other RCODEs which a resolver normally
-encounters makes any assertions regarding the name in the question or
+from the fact that no other RCODEs that a resolver normally
+encounters make any assertions regarding the name in the question or
 any data associated with it.  This comports with existing resolver
 behavior where a failed lookup (say, during pre-fetching) doesn't
-impact the existing cache state.  Some authoritative servers operators
+impact the existing cache state.  Some authoritative server operators
 have said that they would prefer stale answers to be used in the event
 that their servers are responding with errors like ServFail instead of
 giving true authoritative answers.  Implementers MAY decide to return
@@ -461,15 +464,20 @@ value.
 
 The most obvious security issue is the increased likelihood of DNSSEC
 validation failures when using stale data because signatures could be
-returned outside their validity period.  This would only be an issue
+returned outside their validity period. Stale negative records can increase
+the time window where newly published TLSA or DS RRs may not be used due
+to cached NSEC or NSEC3 records. These scenarios would only be an issue
 if the authoritative servers are unreachable, the only time the
 techniques in this document are used, and thus does not introduce
 a new failure in place of what would have otherwise been success.
 
 Additionally, bad actors have been known to use DNS caches to keep
-records alive even after their authorities have gone away.  This
-potentially makes that easier, although without introducing a new
-risk.
+records alive even after their authorities have gone away. The serve stale
+feature potentially makes the attack easier, although without introducing
+a new risk. In addition, attackers could combine this with a DDoS attack on
+authoritative servers with the explicit intent of having stale information
+cached for longer. But if attackers have this capacity, they probably could
+do much worse than prolonging the life of old data.
 
 In {{CloudStrife}}, it was demonstrated how stale DNS data, namely
 hostnames pointing to addresses that are no longer in use by the owner
@@ -478,7 +486,7 @@ domain-validated certificates fraudulently issued to an attacker.
 While this document does not create a new vulnerability in this area, it
 does potentially enlarge the window in which such an attack could be
 made.  A proposed mitigation is that certificate authorities should fully
-look up each name starting at the DNS root for every name lookup. 
+look up each name starting at the DNS root for every name lookup.
 Alternatively, CAs should use a resolver that is not serving stale data.
 
 # Privacy Considerations
