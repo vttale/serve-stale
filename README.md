@@ -136,13 +136,11 @@ Table of Contents
 
    [RFC2181] aimed to provide "the precise definition of the Time to
    Live", but in Section 8 was mostly concerned with the numeric range
-   of values and the possibility that very large values should be
-   capped.  (It also has the curious suggestion that a value in the
-   range 2147483648 to 4294967295 should be treated as zero.)  It closes
-   that section by noting, "The TTL specifies a maximum time to live,
-   not a mandatory time to live."  This wording again does not contain
-   BCP 14 [RFC2119] key words, but does convey the natural language
-   connotation that data becomes unusable past TTL expiry.
+   of values rather than data expiration behavior.  It does, however,
+   close that section by noting, "The TTL specifies a maximum time to
+   live, not a mandatory time to live."  This wording again does not
+   contain BCP 14 [RFC2119] key words, but does convey the natural
+   language connotation that data becomes unusable past TTL expiry.
 
    Several recursive resolver operators, including Akamai, currently use
    stale data for answers in some way.  A number of recursive resolver
@@ -168,10 +166,11 @@ Table of Contents
       used as though it is unexpired.  See the Section 5 and Section 6
       sections for details.
 
-   Interpreting values which have the high order bit set as being
-   positive, rather than 0, is a change from [RFC2181].  Suggesting a
-   cap of seven days, rather than the 68 years allowed by [RFC2181],
-   reflects the current practice of major modern DNS resolvers.
+   Interpreting values which have the high-order bit set as being
+   positive, rather than 0, is a change from [RFC2181], the rationale
+   for which is explained in Section 6.  Suggesting a cap of seven days,
+   rather than the 68 years allowed by [RFC2181], reflects the current
+   practice of major modern DNS resolvers.
 
    When returning a response containing stale records, a recursive
    resolver MUST set the TTL of each expired record in the message to a
@@ -319,6 +318,24 @@ Table of Contents
    those potential problems with no practical negative consequences, it
    also rate limits further queries from any client that honors the TTL,
    such as a forwarding resolver.
+
+   As for the change to treat a TTL with the high-order bit set as
+   positive and then clamping it, as opposed to [RFC2181] treating it as
+   zero, the rationale here is basically one of engineering simplicity
+   versus an inconsequential operational history.  Negative TTLs had no
+   rational intentional meaning that wouldn't have been satisfied by
+   just sending 0 instead, and similarly there was realistically no
+   practical purpose for sending TTLs of 2^25 seconds (1 year) or more.
+   There's also no record of TTLs in the wild having the most
+   significant bit set in DNS-OARC's "Day in the Life" samples.  With no
+   apparent reason for operators to use them intentionally, that leaves
+   either errors or non-standard experiments as explanations as to why
+   such TTLs might be encountered, with neither providing an obviously
+   compelling reason as to why having the leading bit set should be
+   treated differently from having any of the next eleven bits set and
+   then capped per Section 4.  Regardless, treating such a TTL as
+   effectively either an underflow condition or an overflow one has been
+   left to the discretion of the implementers
 
    Another implementation consideration is the use of stale nameserver
    addresses for lookups.  This is mentioned explicitly because, in some
