@@ -333,9 +333,7 @@ Table of Contents
    such TTLs might be encountered, with neither providing an obviously
    compelling reason as to why having the leading bit set should be
    treated differently from having any of the next eleven bits set and
-   then capped per Section 4.  Regardless, treating such a TTL as
-   effectively either an underflow condition or an overflow one has been
-   left to the discretion of the implementers
+   then capped per Section 4.
 
    Another implementation consideration is the use of stale nameserver
    addresses for lookups.  This is mentioned explicitly because, in some

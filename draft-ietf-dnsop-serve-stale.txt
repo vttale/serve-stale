@@ -381,11 +381,11 @@ Internet-Draft               DNS Serve Stale              September 2019
    such TTLs might be encountered, with neither providing an obviously
    compelling reason as to why having the leading bit set should be
    treated differently from having any of the next eleven bits set and
-   then capped per Section 4.  Regardless, treating such a TTL as
-   effectively either an underflow condition or an overflow one has been
-   left to the discretion of the implementers
+   then capped per Section 4.
 
-
+   Another implementation consideration is the use of stale nameserver
+   addresses for lookups.  This is mentioned explicitly because, in some
+   resolvers, getting the addresses for nameservers is a separate path
 
 
 
@@ -394,9 +394,6 @@ Lawrence, et al.         Expires March 21, 2020                 [Page 7]
 Internet-Draft               DNS Serve Stale              September 2019
 
 
-   Another implementation consideration is the use of stale nameserver
-   addresses for lookups.  This is mentioned explicitly because, in some
-   resolvers, getting the addresses for nameservers is a separate path
    from a normal cache lookup.  If authoritative server addresses are
    not able to be refreshed, resolution can possibly still be successful
    if the authoritative servers themselves are up.  For instance,
@@ -442,6 +439,9 @@ Internet-Draft               DNS Serve Stale              September 2019
    Stale data is used only when refreshing has failed in order to adhere
    to the original intent of the design of the DNS and the behaviour
    expected by operators.  If stale data were to always be used
+   immediately and then a cache refresh attempted after the client
+   response has been sent, the resolver would frequently be sending data
+   that it would have had no trouble refreshing.  Because modern
 
 
 
@@ -450,9 +450,6 @@ Lawrence, et al.         Expires March 21, 2020                 [Page 8]
 Internet-Draft               DNS Serve Stale              September 2019
 
 
-   immediately and then a cache refresh attempted after the client
-   response has been sent, the resolver would frequently be sending data
-   that it would have had no trouble refreshing.  Because modern
    resolvers use techniques like pre-fetching and request coalescing for
    efficiency, it is not necessary that every client request needs to
    trigger a new lookup flow in the presence of stale data, but rather
@@ -498,6 +495,9 @@ Internet-Draft               DNS Serve Stale              September 2019
    respond with stale data immediately if it has recently tried and
    failed to refresh the answer by pre-fetching.
 
+   Knot Resolver has a demo module here: https://knot-
+   resolver.readthedocs.io/en/stable/modules.html#serve-stale
+
 
 
 
@@ -505,9 +505,6 @@ Lawrence, et al.         Expires March 21, 2020                 [Page 9]
 
 Internet-Draft               DNS Serve Stale              September 2019
 
-
-   Knot Resolver has a demo module here: https://knot-
-   resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
    Details of Apple's implementation are not currently known.
 
@@ -554,6 +551,9 @@ Internet-Draft               DNS Serve Stale              September 2019
    this capacity, they probably could do much worse than prolonging the
    life of old data.
 
+   In [CloudStrife], it was demonstrated how stale DNS data, namely
+   hostnames pointing to addresses that are no longer in use by the
+   owner of the name, can be used to co-opt security such as to get
 
 
 
@@ -562,9 +562,6 @@ Lawrence, et al.         Expires March 21, 2020                [Page 10]
 Internet-Draft               DNS Serve Stale              September 2019
 
 
-   In [CloudStrife], it was demonstrated how stale DNS data, namely
-   hostnames pointing to addresses that are no longer in use by the
-   owner of the name, can be used to co-opt security such as to get
    domain-validated certificates fraudulently issued to an attacker.
    While this document does not create a new vulnerability in this area,
    it does potentially enlarge the window in which such an attack could
@@ -607,7 +604,10 @@ Internet-Draft               DNS Serve Stale              September 2019
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
               November 1987, <https://www.rfc-editor.org/info/rfc1035>.
 
-
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
 
 
@@ -617,11 +617,6 @@ Lawrence, et al.         Expires March 21, 2020                [Page 11]
 
 Internet-Draft               DNS Serve Stale              September 2019
 
-
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -663,6 +658,11 @@ Internet-Draft               DNS Serve Stale              September 2019
 
 Authors' Addresses
 
+   David C Lawrence
+   Oracle
+
+   Email: tale@dd.org
+
 
 
 
@@ -672,12 +672,6 @@ Authors' Addresses
 Lawrence, et al.         Expires March 21, 2020                [Page 12]
 
 Internet-Draft               DNS Serve Stale              September 2019
-
-
-   David C Lawrence
-   Oracle
-
-   Email: tale@dd.org
 
 
    Warren "Ace" Kumari
@@ -693,6 +687,12 @@ Internet-Draft               DNS Serve Stale              September 2019
    Google
 
    Email: puneets@google.com
+
+
+
+
+
+
 
 
 
