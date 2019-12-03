@@ -1,8 +1,8 @@
 ---
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
-docname: draft-ietf-dnsop-serve-stale-09
-date:  2019-10-24
+docname: draft-ietf-dnsop-serve-stale-10
+date:  2019-12-03
 
 ipr: trust200902
 area: Internet
@@ -156,9 +156,9 @@ a mandatory time to live."  This wording again does not contain BCP 14
 {{!RFC2119}} key words, but does convey the natural language
 connotation that data becomes unusable past TTL expiry.
 
-Several recursive resolver operators, including Akamai, currently use stale
-data for answers in some way. A number of recursive resolver packages
-(including BIND, Knot, OpenDNS, Unbound) provide options to use stale data.
+As of the time of this writing, several large-scale operators use stale
+data for answers in some way. A number of recursive resolver packages,
+including BIND, Knot, OpenDNS, and Unbound, provide options to use stale data.
 Apple MacOS can also use stale data as part of the Happy Eyeballs algorithms in
 mDNSResponder.  The collective operational experience is that using stale data
 can provide significant benefit with minimal downside.
@@ -176,8 +176,9 @@ to mean that the RR can only be used for the transaction in progress,
 and should not be cached.  Values SHOULD be capped on the orders of
 days to weeks, with a recommended cap of 604,800 seconds (seven days). If the
 data is unable to be authoritatively refreshed when the TTL expires,
-the record MAY be used as though it is unexpired. See the {{example-method}}
-and {{implementation-considerations}} sections for details.
+the record MAY be used as though it is unexpired. See \[RFC Editor:
+replace by RFC number\] {{example-method}}
+and {{implementation-considerations}} for details.
 
 Interpreting values which have the high-order bit set as being
 positive, rather than 0, is a change from {{RFC2181}}, the rationale
@@ -195,7 +196,7 @@ Answers from authoritative servers that have a DNS Response Code of
 either 0 (NoError) or 3 (NXDomain) and the Authoritative Answers (AA)
 bit set MUST be considered to have refreshed the data at the resolver.
 Answers from authoritative servers that have any other response code
-SHOULD be considered a failure to refresh the data and therefor leave
+SHOULD be considered a failure to refresh the data and therefore leave
 any previous state intact. See {{implementation-considerations}} for
 a discussion.
 
@@ -226,7 +227,7 @@ effectively some kind of failure recheck timer.  The client
 response timer and maximum stale timer are new concepts for this
 mechanism.
 
-When a request is received by a recursive resolver, it should start
+When a recursive resolver receives a request, it should start
 the client response timer.  This timer is used to avoid client
 timeouts.  It should be configurable, with a recommended value of 1.8
 seconds as being just under a common timeout value of 2 seconds while
@@ -421,7 +422,8 @@ The continuing prohibition against using data with a 0 second TTL
 beyond the current transaction explicitly extends to it being unusable
 even for stale fallback, as it is not to be cached at all.
 
-Be aware that Canonical Name (CNAME) and DNAME {{?RFC6672}} records mingled in the expired
+Be aware that Canonical Name (CNAME) and DNAME {{?RFC6672}} records
+mingled in the expired
 cache with other records at the same owner name can cause surprising
 results.  This was observed with an initial implementation in BIND
 when a hostname changed from having an IPv4 Address (A) record to a
@@ -433,25 +435,24 @@ the older A instead of the newer CNAME.
 
 # Implementation Status
 
-\[RFC Editor: per RFC 6982 this section should be removed prior to
-publication.\]
-
 The algorithm described in {{example-method}} was
-originally implemented as a patch to BIND 9.7.0.  It has been in
-production on Akamai's production network since 2011, and effectively
+originally implemented as a patch to BIND 9.7.0.  It has been use
+on Akamai's production network since 2011, and effectively
 smoothed over transient failures and longer outages that would have
 resulted in major incidents.  The patch was contributed to Internet
 Systems Consortium and the functionality is now available in BIND 9.12
-via the options stale-answer-enable, stale-answer-ttl, and max-stale-ttl.
+and later via the options stale-answer-enable, stale-answer-ttl, and
+max-stale-ttl.
 
-Unbound has a similar feature for serving stale answers, but will
+Unbound has a similar feature for serving stale answers, and will
 respond with stale data immediately if it has recently tried and
 failed to refresh the answer by pre-fetching.
 
 Knot Resolver has a demo module here:
 https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
-Details of Apple's implementation are not currently known.
+Apple's system resolvers are also known to use stale answers, but the
+details are not currently known.
 
 In the research paper "When the Dike Breaks: Dissecting DNS Defenses
 During DDoS" {{DikeBreaks}}, the authors detected some use of

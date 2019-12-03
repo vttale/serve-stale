@@ -8,12 +8,12 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035, 2181 (if approved)                        W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: April 26, 2020                                           Google
-                                                        October 24, 2019
+Expires: June 5, 2020                                             Google
+                                                       December 03, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
-                    draft-ietf-dnsop-serve-stale-09
+                    draft-ietf-dnsop-serve-stale-10
 
 Abstract
 
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 26, 2020.
+   This Internet-Draft will expire on June 5, 2020.
 
 Copyright Notice
 
@@ -142,11 +142,11 @@ Table of Contents
    contain BCP 14 [RFC2119] key words, but does convey the natural
    language connotation that data becomes unusable past TTL expiry.
 
-   Several recursive resolver operators, including Akamai, currently use
+   As of the time of this writing, several large-scale operators use
    stale data for answers in some way.  A number of recursive resolver
-   packages (including BIND, Knot, OpenDNS, Unbound) provide options to
-   use stale data.  Apple MacOS can also use stale data as part of the
-   Happy Eyeballs algorithms in mDNSResponder.  The collective
+   packages, including BIND, Knot, OpenDNS, and Unbound, provide options
+   to use stale data.  Apple MacOS can also use stale data as part of
+   the Happy Eyeballs algorithms in mDNSResponder.  The collective
    operational experience is that using stale data can provide
    significant benefit with minimal downside.
 
@@ -163,8 +163,8 @@ Table of Contents
       be capped on the orders of days to weeks, with a recommended cap
       of 604,800 seconds (seven days).  If the data is unable to be
       authoritatively refreshed when the TTL expires, the record MAY be
-      used as though it is unexpired.  See the Section 5 and Section 6
-      sections for details.
+      used as though it is unexpired.  See [RFC Editor: replace by RFC
+      number] Section 5 and Section 6 for details.
 
    Interpreting values which have the high-order bit set as being
    positive, rather than 0, is a change from [RFC2181], the rationale
@@ -182,7 +182,7 @@ Table of Contents
    bit set MUST be considered to have refreshed the data at the
    resolver.  Answers from authoritative servers that have any other
    response code SHOULD be considered a failure to refresh the data and
-   therefor leave any previous state intact.  See Section 6 for a
+   therefore leave any previous state intact.  See Section 6 for a
    discussion.
 
 5.  Example Method
@@ -211,11 +211,11 @@ Table of Contents
    effectively some kind of failure recheck timer.  The client response
    timer and maximum stale timer are new concepts for this mechanism.
 
-   When a request is received by a recursive resolver, it should start
-   the client response timer.  This timer is used to avoid client
-   timeouts.  It should be configurable, with a recommended value of 1.8
-   seconds as being just under a common timeout value of 2 seconds while
-   still giving the resolver a fair shot at resolving the name.
+   When a recursive resolver receives a request, it should start the
+   client response timer.  This timer is used to avoid client timeouts.
+   It should be configurable, with a recommended value of 1.8 seconds as
+   being just under a common timeout value of 2 seconds while still
+   giving the resolver a fair shot at resolving the name.
 
    The resolver then checks its cache for any unexpired records that
    satisfy the request and returns them if available.  If it finds no
@@ -416,25 +416,23 @@ Table of Contents
 
 8.  Implementation Status
 
-   [RFC Editor: per RFC 6982 this section should be removed prior to
-   publication.]
-
    The algorithm described in Section 5 was originally implemented as a
-   patch to BIND 9.7.0.  It has been in production on Akamai's
-   production network since 2011, and effectively smoothed over
-   transient failures and longer outages that would have resulted in
-   major incidents.  The patch was contributed to Internet Systems
-   Consortium and the functionality is now available in BIND 9.12 via
-   the options stale-answer-enable, stale-answer-ttl, and max-stale-ttl.
+   patch to BIND 9.7.0.  It has been use on Akamai's production network
+   since 2011, and effectively smoothed over transient failures and
+   longer outages that would have resulted in major incidents.  The
+   patch was contributed to Internet Systems Consortium and the
+   functionality is now available in BIND 9.12 and later via the options
+   stale-answer-enable, stale-answer-ttl, and max-stale-ttl.
 
-   Unbound has a similar feature for serving stale answers, but will
+   Unbound has a similar feature for serving stale answers, and will
    respond with stale data immediately if it has recently tried and
    failed to refresh the answer by pre-fetching.
 
    Knot Resolver has a demo module here: https://knot-
    resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
-   Details of Apple's implementation are not currently known.
+   Apple's system resolvers are also known to use stale answers, but the
+   details are not currently known.
 
    In the research paper "When the Dike Breaks: Dissecting DNS Defenses
    During DDoS" [DikeBreaks], the authors detected some use of stale
