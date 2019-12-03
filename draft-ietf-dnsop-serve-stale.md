@@ -436,7 +436,7 @@ the older A instead of the newer CNAME.
 # Implementation Status
 
 The algorithm described in {{example-method}} was
-originally implemented as a patch to BIND 9.7.0.  It has been use
+originally implemented as a patch to BIND 9.7.0.  It has been in use
 on Akamai's production network since 2011, and effectively
 smoothed over transient failures and longer outages that would have
 resulted in major incidents.  The patch was contributed to Internet

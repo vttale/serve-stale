@@ -576,7 +576,7 @@
 <h1 id="rfc.section.8">
 <a href="#rfc.section.8">8.</a> <a href="#implementation-status" id="implementation-status">Implementation Status</a>
 </h1>
-<p id="rfc.section.8.p.1">The algorithm described in <a href="#example-method" class="xref">Section 5</a> was originally implemented as a patch to BIND 9.7.0.  It has been use on Akamai's production network since 2011, and effectively smoothed over transient failures and longer outages that would have resulted in major incidents.  The patch was contributed to Internet Systems Consortium and the functionality is now available in BIND 9.12 and later via the options stale-answer-enable, stale-answer-ttl, and max-stale-ttl.</p>
+<p id="rfc.section.8.p.1">The algorithm described in <a href="#example-method" class="xref">Section 5</a> was originally implemented as a patch to BIND 9.7.0.  It has been in use on Akamai's production network since 2011, and effectively smoothed over transient failures and longer outages that would have resulted in major incidents.  The patch was contributed to Internet Systems Consortium and the functionality is now available in BIND 9.12 and later via the options stale-answer-enable, stale-answer-ttl, and max-stale-ttl.</p>
 <p id="rfc.section.8.p.2">Unbound has a similar feature for serving stale answers, and will respond with stale data immediately if it has recently tried and failed to refresh the answer by pre-fetching.</p>
 <p id="rfc.section.8.p.3">Knot Resolver has a demo module here: https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale</p>
 <p id="rfc.section.8.p.4">Apple's system resolvers are also known to use stale answers, but the details are not currently known.</p>
