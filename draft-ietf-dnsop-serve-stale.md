@@ -2,7 +2,7 @@
 title: Serving Stale Data to Improve DNS Resiliency
 abbrev: DNS Serve Stale
 docname: draft-ietf-dnsop-serve-stale-10
-date:  2019-12-03
+date:  2019-12-05
 
 ipr: trust200902
 area: Internet
@@ -78,6 +78,10 @@ informative:
       ACM: 2018 Applied Networking Research Workshop
       DOI: 10.1145/3232755.3232859
 
+  DITL:
+    target: https://www.dns-oarc.net/oarc/data/ditl
+    title: "DITL Traces and Analysis | DNS-OARC"
+
 --- abstract
 
 This draft defines a method (serve-stale) for recursive resolvers to
@@ -125,7 +129,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
 capitals, as shown here.
 
-For a comprehensive treatment of DNS terms, please see {{?RFC8499}}.
+For a glossary of DNS terms, please see {{?RFC8499}}.
 
 # Background
 
@@ -267,14 +271,15 @@ When no authorities are able to be reached during a resolution
 attempt, the resolver should attempt to refresh the delegation and
 restart the iterative lookup process with the remaining time on the
 query resolution timer. This resumption should be done only once
-during one resolution effort.
+per resolution effort.
 
 Outside the resolution process, the maximum stale timer is used for
 cache management and is independent of the query resolution
 process. This timer is conceptually different from the maximum cache
 TTL that exists in many resolvers, the latter being a clamp on the
 value of TTLs as received from authoritative servers and recommended
-to be seven days in the TTL definition in {{standards-action}}.  The maximum stale timer
+to be seven days in the TTL definition in {{standards-action}}.
+The maximum stale timer
 should be configurable, and defines the length of time after a record
 expires that it should be retained in the cache.  The suggested value
 is between 1 and 3 days.
@@ -312,7 +317,7 @@ be useful.
 The client response timer is another variable which deserves
 consideration. If this value is too short, there exists the risk that
 stale answers may be used even when the authoritative server is
-actually reachable but slow; this may result in sub-optimal answers
+actually reachable but slow; this may result in undesirable answers
 being returned. Conversely, waiting too long will negatively impact
 user experience.
 
@@ -322,8 +327,7 @@ resource use for resolution. If this variable is set too large, stale
 answers may continue to be returned even after the authoritative
 server is reachable; per {{!RFC2308}}, Section 7, this should be no
 more than five minutes.  If this variable is too small, authoritative
-servers may be rapidly hit with a significant amount of traffic when
-they become reachable again.
+servers may be targeted with a significant amount of excess traffic.
 
 Regarding the TTL to set on stale records in the response,
 historically TTLs of zero seconds have been problematic for some
@@ -343,7 +347,8 @@ rational intentional meaning that wouldn't have been satisfied by just
 sending 0 instead, and similarly there was realistically no practical
 purpose for sending TTLs of 2^25 seconds (1 year) or more.  There's
 also no record of TTLs in the wild having the most significant bit set
-in DNS-OARC's "Day in the Life" samples.  With no apparent reason for
+in DNS-OARC's "Day in the Life" samples {{DITL}}.  With no apparent
+reason for
 operators to use them intentionally, that leaves either errors or
 non-standard experiments as explanations as to why such TTLs might be
 encountered, with neither providing an obviously compelling reason as
@@ -452,7 +457,7 @@ Knot Resolver has a demo module here:
 https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
 Apple's system resolvers are also known to use stale answers, but the
-details are not currently known.
+details are not readily available.
 
 In the research paper "When the Dike Breaks: Dissecting DNS Defenses
 During DDoS" {{DikeBreaks}}, the authors detected some use of

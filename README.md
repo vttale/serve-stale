@@ -8,8 +8,8 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035, 2181 (if approved)                        W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: June 5, 2020                                             Google
-                                                       December 03, 2019
+Expires: June 7, 2020                                             Google
+                                                       December 05, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 5, 2020.
+   This Internet-Draft will expire on June 7, 2020.
 
 Copyright Notice
 
@@ -111,7 +111,7 @@ Table of Contents
    14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-   For a comprehensive treatment of DNS terms, please see [RFC8499].
+   For a glossary of DNS terms, please see [RFC8499].
 
 3.  Background
 
@@ -250,8 +250,8 @@ Table of Contents
    When no authorities are able to be reached during a resolution
    attempt, the resolver should attempt to refresh the delegation and
    restart the iterative lookup process with the remaining time on the
-   query resolution timer.  This resumption should be done only once
-   during one resolution effort.
+   query resolution timer.  This resumption should be done only once per
+   resolution effort.
 
    Outside the resolution process, the maximum stale timer is used for
    cache management and is independent of the query resolution process.
@@ -296,7 +296,7 @@ Table of Contents
    The client response timer is another variable which deserves
    consideration.  If this value is too short, there exists the risk
    that stale answers may be used even when the authoritative server is
-   actually reachable but slow; this may result in sub-optimal answers
+   actually reachable but slow; this may result in undesirable answers
    being returned.  Conversely, waiting too long will negatively impact
    user experience.
 
@@ -306,8 +306,8 @@ Table of Contents
    stale answers may continue to be returned even after the
    authoritative server is reachable; per [RFC2308], Section 7, this
    should be no more than five minutes.  If this variable is too small,
-   authoritative servers may be rapidly hit with a significant amount of
-   traffic when they become reachable again.
+   authoritative servers may be targeted with a significant amount of
+   excess traffic.
 
    Regarding the TTL to set on stale records in the response,
    historically TTLs of zero seconds have been problematic for some
@@ -327,13 +327,13 @@ Table of Contents
    just sending 0 instead, and similarly there was realistically no
    practical purpose for sending TTLs of 2^25 seconds (1 year) or more.
    There's also no record of TTLs in the wild having the most
-   significant bit set in DNS-OARC's "Day in the Life" samples.  With no
-   apparent reason for operators to use them intentionally, that leaves
-   either errors or non-standard experiments as explanations as to why
-   such TTLs might be encountered, with neither providing an obviously
-   compelling reason as to why having the leading bit set should be
-   treated differently from having any of the next eleven bits set and
-   then capped per Section 4.
+   significant bit set in DNS-OARC's "Day in the Life" samples [DITL].
+   With no apparent reason for operators to use them intentionally, that
+   leaves either errors or non-standard experiments as explanations as
+   to why such TTLs might be encountered, with neither providing an
+   obviously compelling reason as to why having the leading bit set
+   should be treated differently from having any of the next eleven bits
+   set and then capped per Section 4.
 
    Another implementation consideration is the use of stale nameserver
    addresses for lookups.  This is mentioned explicitly because, in some
@@ -432,7 +432,7 @@ Table of Contents
    resolver.readthedocs.io/en/stable/modules.html#serve-stale
 
    Apple's system resolvers are also known to use stale answers, but the
-   details are not currently known.
+   details are not readily available.
 
    In the research paper "When the Dike Breaks: Dissecting DNS Defenses
    During DDoS" [DikeBreaks], the authors detected some use of stale
@@ -556,6 +556,9 @@ Table of Contents
               During DDos", ACM 2018 Internet Measurement Conference,
               DOI 10.1145/3278532.3278534, October 2018,
               <https://www.isi.edu/~johnh/PAPERS/Moura18b.pdf>.
+
+   [DITL]     "DITL Traces and Analysis | DNS-OARC", n.d.,
+              <https://www.dns-oarc.net/oarc/data/ditl>.
 
    [RFC6672]  Rose, S. and W. Wijngaards, "DNAME Redirection in the
               DNS", RFC 6672, DOI 10.17487/RFC6672, June 2012,
