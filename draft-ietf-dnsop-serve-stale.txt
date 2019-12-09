@@ -6,8 +6,8 @@ DNSOP Working Group                                          D. Lawrence
 Internet-Draft                                                    Oracle
 Updates: 1034, 1035, 2181 (if approved)                        W. Kumari
 Intended status: Standards Track                                 P. Sood
-Expires: June 7, 2020                                             Google
-                                                       December 05, 2019
+Expires: June 11, 2020                                            Google
+                                                       December 09, 2019
 
 
               Serving Stale Data to Improve DNS Resiliency
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on June 7, 2020.
+   This Internet-Draft will expire on June 11, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 1]
+Lawrence, et al.          Expires June 11, 2020                 [Page 1]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 2]
+Lawrence, et al.          Expires June 11, 2020                 [Page 2]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -165,7 +165,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 3]
+Lawrence, et al.          Expires June 11, 2020                 [Page 3]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -221,7 +221,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 4]
+Lawrence, et al.          Expires June 11, 2020                 [Page 4]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -277,7 +277,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 5]
+Lawrence, et al.          Expires June 11, 2020                 [Page 5]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -333,7 +333,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 6]
+Lawrence, et al.          Expires June 11, 2020                 [Page 6]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -389,7 +389,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 7]
+Lawrence, et al.          Expires June 11, 2020                 [Page 7]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -445,7 +445,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 8]
+Lawrence, et al.          Expires June 11, 2020                 [Page 8]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -501,7 +501,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                  [Page 9]
+Lawrence, et al.          Expires June 11, 2020                 [Page 9]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -557,7 +557,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                 [Page 10]
+Lawrence, et al.          Expires June 11, 2020                [Page 10]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -613,7 +613,7 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                 [Page 11]
+Lawrence, et al.          Expires June 11, 2020                [Page 11]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -669,7 +669,7 @@ Authors' Addresses
 
 
 
-Lawrence, et al.          Expires June 7, 2020                 [Page 12]
+Lawrence, et al.          Expires June 11, 2020                [Page 12]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
@@ -725,4 +725,4 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 
 
-Lawrence, et al.          Expires June 7, 2020                 [Page 13]
+Lawrence, et al.          Expires June 11, 2020                [Page 13]
