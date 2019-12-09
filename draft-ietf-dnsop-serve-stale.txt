@@ -582,13 +582,15 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 14.  Acknowledgements
 
-   The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-   Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
-   Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
-   for their review and feedback.
+   The authors wish to thank Brian Carpenter, Robert Edmonds, Tony
+   Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane
+   Moura, Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber
+   and Paul Wouters for their review and feedback.  Paul Hoffman
+   deserves special thanks for submitting a number of Pull Requests.
 
-   Paul Hoffman deserves special thanks for submitting a number of Pull
-   Requests.
+   Thank you also to the following members of the IESG for their final
+   review: Roman Danyliw, Benjamin Kaduk, Suresh Krishnan, Mirja
+   Kuehlewind, and Adam Roach.
 
 15.  References
 
@@ -607,9 +609,7 @@ Internet-Draft               DNS Serve Stale               December 2019
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
 
-   [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
-              Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
-              <https://www.rfc-editor.org/info/rfc2181>.
+
 
 
 
@@ -617,6 +617,10 @@ Lawrence, et al.          Expires June 7, 2020                 [Page 11]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
+
+   [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
+              Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
+              <https://www.rfc-editor.org/info/rfc2181>.
 
    [RFC2308]  Andrews, M., "Negative Caching of DNS Queries (DNS
               NCACHE)", RFC 2308, DOI 10.17487/RFC2308, March 1998,
@@ -661,10 +665,6 @@ Authors' Addresses
    Oracle
 
    Email: tale@dd.org
-
-
-
-
 
 
 

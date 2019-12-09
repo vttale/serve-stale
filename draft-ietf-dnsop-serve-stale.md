@@ -525,13 +525,14 @@ There are no IANA considerations.
 
 # Acknowledgements
 
-The authors wish to thank Robert Edmonds, Tony Finch, Bob Harold,
-Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura, Jean Roy,
-Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and Paul Wouters
-for their review and feedback.
+The authors wish to thank Brian Carpenter, Robert Edmonds, Tony Finch,
+Bob Harold, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura,
+Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and
+Paul Wouters for their review and feedback.  Paul Hoffman deserves
+special thanks for submitting a number of Pull Requests.
 
-
-
-Paul Hoffman deserves special thanks for submitting a number of Pull Requests.
+Thank you also to the following members of the IESG for their final
+review:  Roman Danyliw, Benjamin Kaduk, Suresh Krishnan, Mirja
+Kühlewind, and Adam Roach.
 
 --- back
