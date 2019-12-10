@@ -162,7 +162,7 @@ connotation that data becomes unusable past TTL expiry.
 
 As of the time of this writing, several large-scale operators use stale
 data for answers in some way. A number of recursive resolver packages,
-including BIND, Knot, OpenDNS, and Unbound, provide options to use stale data.
+including BIND, Knot Resolver, OpenDNS, and Unbound, provide options to use stale data.
 Apple MacOS can also use stale data as part of the Happy Eyeballs algorithms in
 mDNSResponder.  The collective operational experience is that using stale data
 can provide significant benefit with minimal downside.

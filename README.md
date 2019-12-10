@@ -35,7 +35,7 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
@@ -51,7 +51,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -144,11 +144,11 @@ Table of Contents
 
    As of the time of this writing, several large-scale operators use
    stale data for answers in some way.  A number of recursive resolver
-   packages, including BIND, Knot, OpenDNS, and Unbound, provide options
-   to use stale data.  Apple MacOS can also use stale data as part of
-   the Happy Eyeballs algorithms in mDNSResponder.  The collective
-   operational experience is that using stale data can provide
-   significant benefit with minimal downside.
+   packages, including BIND, Knot Resolver, OpenDNS, and Unbound,
+   provide options to use stale data.  Apple MacOS can also use stale
+   data as part of the Happy Eyeballs algorithms in mDNSResponder.  The
+   collective operational experience is that using stale data can
+   provide significant benefit with minimal downside.
 
 4.  Standards Action
 
@@ -526,8 +526,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
