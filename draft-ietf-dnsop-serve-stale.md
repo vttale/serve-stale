@@ -525,7 +525,7 @@ There are no IANA considerations.
 
 # Acknowledgements
 
-The authors wish to thank Brian Carpenter, Vladimír Čunát, Robert Edmonds,
+The authors wish to thank Brian Carpenter, Vladimir Cunat, Robert Edmonds,
 Tony Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane Moura,
 Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber and
 Paul Wouters for their review and feedback.  Paul Hoffman deserves

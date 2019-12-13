@@ -582,11 +582,12 @@ Internet-Draft               DNS Serve Stale               December 2019
 
 14.  Acknowledgements
 
-   The authors wish to thank Brian Carpenter, Robert Edmonds, Tony
-   Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane
-   Moura, Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber
-   and Paul Wouters for their review and feedback.  Paul Hoffman
-   deserves special thanks for submitting a number of Pull Requests.
+   The authors wish to thank Brian Carpenter, Vladimir Cunat, Robert
+   Edmonds, Tony Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason
+   Moreau, Giovane Moura, Jean Roy, Mukund Sivaraman, Davey Song, Paul
+   Vixie, Ralf Weber and Paul Wouters for their review and feedback.
+   Paul Hoffman deserves special thanks for submitting a number of Pull
+   Requests.
 
    Thank you also to the following members of the IESG for their final
    review: Roman Danyliw, Benjamin Kaduk, Suresh Krishnan, Mirja
@@ -608,7 +609,6 @@ Internet-Draft               DNS Serve Stale               December 2019
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
-
 
 
 
