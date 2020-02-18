@@ -451,7 +451,11 @@ max-stale-ttl.
 
 Unbound has a similar feature for serving stale answers, and will
 respond with stale data immediately if it has recently tried and
-failed to refresh the answer by pre-fetching.
+failed to refresh the answer by pre-fetching.  Starting from
+version 1.10.0 unbound can also be configured to follow the
+algorithm described in Section 5.  Both behaviors can be
+configured and fine-tuned with the available serve-expired-*
+options.
 
 Knot Resolver has a demo module here:
 https://knot-resolver.readthedocs.io/en/stable/modules.html#serve-stale

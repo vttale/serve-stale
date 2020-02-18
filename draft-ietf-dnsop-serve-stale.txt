@@ -33,7 +33,7 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at https://datatracker.ietf.org/drafts/current/.
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
@@ -49,7 +49,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
 
 
 
@@ -84,7 +84,7 @@ Table of Contents
    15. References  . . . . . . . . . . . . . . . . . . . . . . . . .  11
      15.1.  Normative References . . . . . . . . . . . . . . . . . .  11
      15.2.  Informative References . . . . . . . . . . . . . . . . .  12
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  12
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  13
 
 1.  Introduction
 
@@ -490,13 +490,13 @@ Internet-Draft               DNS Serve Stale               December 2019
 
    Unbound has a similar feature for serving stale answers, and will
    respond with stale data immediately if it has recently tried and
-   failed to refresh the answer by pre-fetching.
+   failed to refresh the answer by pre-fetching.  Starting from version
+   1.10.0 unbound can also be configured to follow the algorithm
+   described in Section 5.  Both behaviors can be configured and fine-
+   tuned with the available serve-expired-* options.
 
    Knot Resolver has a demo module here: https://knot-
    resolver.readthedocs.io/en/stable/modules.html#serve-stale
-
-   Apple's system resolvers are also known to use stale answers, but the
-   details are not readily available.
 
 
 
@@ -505,6 +505,9 @@ Lawrence, et al.          Expires June 11, 2020                 [Page 9]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
+
+   Apple's system resolvers are also known to use stale answers, but the
+   details are not readily available.
 
    In the research paper "When the Dike Breaks: Dissecting DNS Defenses
    During DDoS" [DikeBreaks], the authors detected some use of stale
@@ -551,9 +554,6 @@ Internet-Draft               DNS Serve Stale               December 2019
 
    In [CloudStrife], it was demonstrated how stale DNS data, namely
    hostnames pointing to addresses that are no longer in use by the
-   owner of the name, can be used to co-opt security such as to get
-   domain-validated certificates fraudulently issued to an attacker.
-   While this document does not create a new vulnerability in this area,
 
 
 
@@ -562,6 +562,9 @@ Lawrence, et al.          Expires June 11, 2020                [Page 10]
 Internet-Draft               DNS Serve Stale               December 2019
 
 
+   owner of the name, can be used to co-opt security such as to get
+   domain-validated certificates fraudulently issued to an attacker.
+   While this document does not create a new vulnerability in this area,
    it does potentially enlarge the window in which such an attack could
    be made.  A proposed mitigation is that certificate authorities
    should fully look up each name starting at the DNS root for every
@@ -605,10 +608,7 @@ Internet-Draft               DNS Serve Stale               December 2019
               specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
               November 1987, <https://www.rfc-editor.org/info/rfc1035>.
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+
 
 
 
@@ -617,6 +617,11 @@ Lawrence, et al.          Expires June 11, 2020                [Page 11]
 
 Internet-Draft               DNS Serve Stale               December 2019
 
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
@@ -659,12 +664,7 @@ Internet-Draft               DNS Serve Stale               December 2019
               Terminology", BCP 219, RFC 8499, DOI 10.17487/RFC8499,
               January 2019, <https://www.rfc-editor.org/info/rfc8499>.
 
-Authors' Addresses
 
-   David C Lawrence
-   Oracle
-
-   Email: tale@dd.org
 
 
 
@@ -672,6 +672,14 @@ Authors' Addresses
 Lawrence, et al.          Expires June 11, 2020                [Page 12]
 
 Internet-Draft               DNS Serve Stale               December 2019
+
+
+Authors' Addresses
+
+   David C Lawrence
+   Oracle
+
+   Email: tale@dd.org
 
 
    Warren "Ace" Kumari
@@ -687,14 +695,6 @@ Internet-Draft               DNS Serve Stale               December 2019
    Google
 
    Email: puneets@google.com
-
-
-
-
-
-
-
-
 
 
 

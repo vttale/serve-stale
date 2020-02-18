@@ -35,7 +35,7 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at https://datatracker.ietf.org/drafts/current/.
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
@@ -51,7 +51,7 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (https://trustee.ietf.org/license-info) in effect on the date of
+   (http://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -426,7 +426,10 @@ Table of Contents
 
    Unbound has a similar feature for serving stale answers, and will
    respond with stale data immediately if it has recently tried and
-   failed to refresh the answer by pre-fetching.
+   failed to refresh the answer by pre-fetching.  Starting from version
+   1.10.0 unbound can also be configured to follow the algorithm
+   described in Section 5.  Both behaviors can be configured and fine-
+   tuned with the available serve-expired-* options.
 
    Knot Resolver has a demo module here: https://knot-
    resolver.readthedocs.io/en/stable/modules.html#serve-stale
@@ -502,11 +505,12 @@ Table of Contents
 
 14.  Acknowledgements
 
-   The authors wish to thank Brian Carpenter, Robert Edmonds, Tony
-   Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason Moreau, Giovane
-   Moura, Jean Roy, Mukund Sivaraman, Davey Song, Paul Vixie, Ralf Weber
-   and Paul Wouters for their review and feedback.  Paul Hoffman
-   deserves special thanks for submitting a number of Pull Requests.
+   The authors wish to thank Brian Carpenter, Vladimir Cunat, Robert
+   Edmonds, Tony Finch, Bob Harold, Tatuya Jinmei, Matti Klock, Jason
+   Moreau, Giovane Moura, Jean Roy, Mukund Sivaraman, Davey Song, Paul
+   Vixie, Ralf Weber and Paul Wouters for their review and feedback.
+   Paul Hoffman deserves special thanks for submitting a number of Pull
+   Requests.
 
    Thank you also to the following members of the IESG for their final
    review: Roman Danyliw, Benjamin Kaduk, Suresh Krishnan, Mirja
@@ -526,8 +530,8 @@ Table of Contents
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
+              editor.org/info/rfc2119>.
 
    [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
               Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
